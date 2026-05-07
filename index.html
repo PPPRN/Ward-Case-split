@@ -5,54 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>WardSync</title>
 <style>
-/* ─── TOKENS ─────────────────────────────────────────────── */
 :root{
-  --blue:#007AFF; --blue-dk:#0056CC; --green:#34C759; --red:#FF3B30;
-  --orange:#FF9500; --purple:#AF52DE; --gray:#8E8E93; --gray2:#AEAEB2;
-  --gray3:#C7C7CC; --gray4:#D1D1D6; --gray5:#E5E5EA; --gray6:#F2F2F7;
-  --bg:#F2F2F7; --card:#FFFFFF; --txt:#000; --txt2:#3C3C43; --txt3:#6C6C70;
+  --blue:#007AFF;--green:#34C759;--red:#FF3B30;--orange:#FF9500;--purple:#AF52DE;
+  --gray:#8E8E93;--gray2:#AEAEB2;--gray3:#C7C7CC;--gray4:#D1D1D6;--gray5:#E5E5EA;
+  --bg:#F2F2F7;--card:#FFFFFF;--txt:#000;--txt2:#3C3C43;--txt3:#6C6C70;
   --sep:rgba(60,60,67,.12);
-  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
-  --nh:56px; --th:83px;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  --nh:56px;--th:83px;
 }
 @media(prefers-color-scheme:dark){
-  :root{
-    --bg:#1C1C1E; --card:#2C2C2E; --txt:#FFF; --txt2:#EBEBF5;
-    --txt3:rgba(235,235,245,.55); --sep:rgba(84,84,88,.6);
-    --gray5:#2C2C2E; --gray4:#3A3A3C; --gray3:#48484A;
-  }
+  :root{--bg:#1C1C1E;--card:#2C2C2E;--txt:#FFF;--txt2:#EBEBF5;--txt3:rgba(235,235,245,.55);
+  --sep:rgba(84,84,88,.6);--gray5:#2C2C2E;--gray4:#3A3A3C;--gray3:#48484A;}
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--txt)}
 #app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
 
-/* ─── NAV ─────────────────────────────────────────────────── */
+/* NAV */
 .nav{background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep);padding-top:var(--st);flex-shrink:0;z-index:100}
 @media(prefers-color-scheme:dark){.nav{background:rgba(28,28,30,.88)}}
 .nav-in{height:var(--nh);display:flex;align-items:center;padding:0 16px}
 .nav-t{font-size:17px;font-weight:600;letter-spacing:-.4px;flex:1;text-align:center}
-.nav-s{min-width:88px;display:flex;align-items:center}
+.nav-s{min-width:80px;display:flex;align-items:center}
 .nav-s.r{justify-content:flex-end}
-.nav-btn{background:none;border:none;color:var(--blue);font-size:17px;padding:6px 0;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px}
-.nav-btn:active{opacity:.5}
-.nav-btn.red{color:var(--red)}
+.nbtn{background:none;border:none;color:var(--blue);font-size:17px;padding:6px 0;font-family:inherit;cursor:pointer}
+.nbtn:active{opacity:.5}
+.nbtn.red{color:var(--red)}
 .nav-sub{font-size:11px;color:var(--txt3);text-align:center;padding:0 16px 7px}
 
-/* ─── TABS ────────────────────────────────────────────────── */
+/* TABBAR */
 .tabbar{background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep);padding-bottom:var(--sb);display:flex;flex-shrink:0;z-index:100}
 @media(prefers-color-scheme:dark){.tabbar{background:rgba(28,28,30,.88)}}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 4px;cursor:pointer;min-height:var(--th);border:none;background:none;font-family:inherit;color:var(--gray2)}
 .tab.on{color:var(--blue)}
 .tab:active{opacity:.7}
-.tab-i{font-size:22px;margin-bottom:4px}
-.tab-l{font-size:10px;font-weight:500}
+.ti{font-size:22px;margin-bottom:4px}
+.tl{font-size:10px;font-weight:500}
 
-/* ─── PAGES ───────────────────────────────────────────────── */
+/* PAGES */
 .page{display:none;flex-direction:column;flex:1;overflow:hidden}
 .page.on{display:flex}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(var(--th) + var(--sb) + 20px)}
 
-/* ─── LAYOUT HELPERS ──────────────────────────────────────── */
+/* LAYOUT */
 .sh{font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:20px 32px 8px}
 .card{background:var(--card);border-radius:12px;overflow:hidden;margin:0 16px}
 .row{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:44px;cursor:pointer}
@@ -62,8 +57,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .rt{font-size:17px}
 .rs{font-size:14px;color:var(--txt3);margin-top:2px}
 .chev{color:var(--gray3);font-size:18px;margin-left:8px;flex-shrink:0}
+.row-nd{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:44px}
+.row-nd:last-child{border-bottom:none}
 
-/* ─── FORM ────────────────────────────────────────────────── */
+/* FORM */
 .fg{margin-bottom:14px}
 .fl{font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding-left:4px}
 .fi{width:100%;padding:12px 16px;font-size:17px;font-family:inherit;background:var(--card);border:1.5px solid transparent;border-radius:12px;color:var(--txt);outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
@@ -71,7 +68,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .fi::placeholder{color:var(--gray3)}
 select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%238E8E93'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 
-/* ─── BUTTONS ─────────────────────────────────────────────── */
+/* BUTTONS */
 .btn{width:100%;padding:14px 16px;border:none;border-radius:12px;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s}
 .btn:active{opacity:.7}
 .bp{background:var(--blue);color:#fff}
@@ -79,11 +76,11 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .br{background:rgba(255,59,48,.12);color:var(--red)}
 .btn+.btn{margin-top:10px}
 
-/* ─── FAB ─────────────────────────────────────────────────── */
+/* FAB */
 .fab{position:fixed;bottom:calc(var(--th) + var(--sb) + 16px);right:20px;width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,122,255,.45);z-index:50;transition:transform .15s;font-family:inherit}
 .fab:active{transform:scale(.9)}
 
-/* ─── SHEET / OVERLAY ─────────────────────────────────────── */
+/* OVERLAY / SHEET */
 .ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);display:flex;flex-direction:column;justify-content:flex-end;animation:fIn .25s}
 .ov.hide{display:none}
 @keyframes fIn{from{opacity:0}to{opacity:1}}
@@ -94,19 +91,18 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .sh-title{font-size:17px;font-weight:600}
 .sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 20px}
 
-/* ─── AVATAR ──────────────────────────────────────────────── */
+/* AVATAR */
 .av{width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
 
-/* ─── BADGES ──────────────────────────────────────────────── */
+/* BADGES */
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600}
 .b-blue{background:rgba(0,122,255,.12);color:var(--blue)}
 .b-green{background:rgba(52,199,89,.15);color:var(--green)}
-.b-orange{background:rgba(255,149,0,.15);color:var(--orange)}
 .b-red{background:rgba(255,59,48,.12);color:var(--red)}
 .b-gray{background:var(--gray5);color:var(--gray)}
 .b-purple{background:rgba(175,82,222,.12);color:var(--purple)}
 
-/* ─── CASE CARD ───────────────────────────────────────────── */
+/* CASE CARD */
 .cc{background:var(--card);border-radius:14px;margin:0 16px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;transition:transform .15s}
 .cc:active{transform:scale(.975)}
 .cc-h{padding:13px 16px 10px;display:flex;gap:10px;align-items:flex-start}
@@ -117,7 +113,7 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .cc-day{font-size:12px;color:var(--orange);font-weight:500;white-space:nowrap}
 .cc-f{padding:8px 16px 11px;border-top:.5px solid var(--sep);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 
-/* ─── CHECKBOX ROW ────────────────────────────────────────── */
+/* CHECKBOX */
 .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--gray3);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .2s}
 .ck.on{background:var(--blue);border-color:var(--blue)}
 .ck.on::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
@@ -126,72 +122,70 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .ck-lbl{font-size:17px;flex:1}
 .ck-note{font-size:12px;color:var(--txt3)}
 
-/* ─── SEGMENT ─────────────────────────────────────────────── */
+/* SEGMENT */
 .seg{display:flex;background:var(--gray5);border-radius:9px;padding:2px;margin:12px 16px}
 .seg-b{flex:1;padding:7px 8px;border:none;border-radius:7px;font-size:13px;font-weight:500;font-family:inherit;color:var(--txt3);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg-b.on{background:var(--card);color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
-/* ─── STATS ───────────────────────────────────────────────── */
+/* STATS */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
 .sc{background:var(--card);border-radius:14px;padding:16px}
 .sn{font-size:34px;font-weight:700;letter-spacing:-1px;color:var(--blue);line-height:1}
 .sl{font-size:13px;color:var(--txt3);margin-top:5px;line-height:1.3}
 
-/* ─── AI PILL ─────────────────────────────────────────────── */
+/* AI PILL */
 .ai-pill{display:inline-block;background:linear-gradient(90deg,#007AFF,#AF52DE);color:#fff;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:8px}
 
-/* ─── TOAST ───────────────────────────────────────────────── */
+/* TOAST */
 #toast{position:fixed;bottom:calc(var(--th) + var(--sb) + 76px);left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(0,0,0,.78);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;pointer-events:none;transition:opacity .25s,transform .25s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ─── LOADING ─────────────────────────────────────────────── */
-.spin-wrap{display:flex;align-items:center;justify-content:center;padding:60px}
-.spinner{width:32px;height:32px;border:3px solid var(--gray4);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ─── EMPTY ───────────────────────────────────────────────── */
-.empty{text-align:center;padding:60px 32px;color:var(--txt3)}
-.empty-i{font-size:52px;margin-bottom:14px}
-.empty-t{font-size:17px;font-weight:600;color:var(--txt2)}
-.empty-s{font-size:15px;margin-top:6px}
-
-/* ─── LOGIN WALL ──────────────────────────────────────────── */
+/* LOGIN WALL */
 #loginWall{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
 #loginWall.hide{display:none}
-.lw-hero{background:linear-gradient(135deg,#007AFF,#5856D6);padding:calc(var(--st) + 48px) 24px 40px;text-align:center;color:#fff;flex-shrink:0}
+.lw-hero{background:linear-gradient(135deg,#007AFF,#5856D6);padding:calc(var(--st) + 44px) 24px 36px;text-align:center;color:#fff;flex-shrink:0;position:relative}
 .lw-hero h1{font-size:30px;font-weight:700;letter-spacing:-.5px}
 .lw-hero p{font-size:15px;opacity:.85;margin-top:6px}
-.lw-body{padding:24px 16px;flex:1}
+.lw-admin-btn{position:absolute;top:calc(var(--st) + 12px);right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:13px;font-weight:600;padding:6px 14px;border-radius:20px;cursor:pointer;font-family:inherit}
+.lw-admin-btn:active{opacity:.7}
+.lw-body{padding:20px 16px;flex:1}
 
-/* ─── EDIT MODE ───────────────────────────────────────────── */
-.edit-mode .row{cursor:default}
-.edit-mode .row:active{background:transparent}
+/* INLINE CARD */
+.ic{background:var(--card);border-radius:12px;overflow:hidden}
 
-/* ─── LANDSCAPE ───────────────────────────────────────────── */
+/* ADMIN PIN OVERLAY */
+#adminPin{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+#adminPin.hide{display:none}
+.pin-box{background:var(--card);border-radius:16px;padding:28px 24px;width:calc(100% - 64px);max-width:320px;text-align:center}
+.pin-box h2{font-size:19px;font-weight:700;margin-bottom:6px}
+.pin-box p{font-size:14px;color:var(--txt3);margin-bottom:20px}
+.pin-input{width:100%;padding:14px;font-size:22px;text-align:center;letter-spacing:8px;font-family:inherit;background:var(--bg);border:1.5px solid var(--gray4);border-radius:12px;color:var(--txt);outline:none;-webkit-appearance:none}
+.pin-input:focus{border-color:var(--blue)}
+.pin-btns{display:flex;gap:10px;margin-top:14px}
+.pin-btns .btn{flex:1;padding:12px}
+
+/* REPORT PILL TOGGLE */
+.rpt-toggle{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rpt-btn{padding:8px 16px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.rpt-btn:active{opacity:.7}
+
+/* HIDDEN */
+.hidden{display:none!important}
+#cameraInput{display:none}
+
+/* LANDSCAPE */
 @media(orientation:landscape) and (max-height:500px){
   :root{--nh:44px;--th:50px}
-  .lw-hero{padding:calc(var(--st) + 16px) 24px 20px}
+  .lw-hero{padding:calc(var(--st)+12px) 24px 18px}
   .lw-hero h1{font-size:22px}
   .sg{grid-template-columns:repeat(4,1fr)}
   .sh-el{max-height:95vh}
-  .sh-body{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
 }
-
-/* ─── MISC ────────────────────────────────────────────────── */
-.hidden{display:none!important}
-#cameraInput{display:none}
-.sep-line{height:.5px;background:var(--sep);margin:0}
-.report-yes{background:rgba(52,199,89,.15);color:var(--green)}
-.report-no{background:rgba(255,59,48,.12);color:var(--red)}
-.inline-card{background:var(--card);border-radius:12px;overflow:hidden}
-.row-nd{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:44px}
-.row-nd:last-child{border-bottom:none}
 </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- NAV BAR -->
+  <!-- NAV -->
   <div class="nav" id="navBar">
     <div class="nav-in">
       <div class="nav-s" id="navL"></div>
@@ -201,41 +195,9 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <div id="navSub" class="nav-sub hidden"></div>
   </div>
 
-  <!-- PAGE 0: SETUP / MANAGE -->
+  <!-- PAGE 0: ALL CASES -->
   <div id="p0" class="page on">
     <div class="scroll" id="s0">
-      <!-- ward section -->
-      <div class="sh" style="display:flex;align-items:center;justify-content:space-between;padding-right:16px">
-        <span>Wards</span>
-        <button class="nav-btn" onclick="openAddWard()" style="font-size:14px">＋ Add</button>
-      </div>
-      <div class="card" id="wardList"></div>
-
-      <!-- group section -->
-      <div id="grpSec" class="hidden">
-        <div class="sh" style="display:flex;align-items:center;justify-content:space-between;padding-right:16px">
-          <span>Groups</span>
-          <button class="nav-btn" onclick="openAddGroup()" style="font-size:14px">＋ Add</button>
-        </div>
-        <div class="card" id="groupList"></div>
-      </div>
-
-      <!-- user section -->
-      <div id="usrSec" class="hidden">
-        <div class="sh">Your Profile</div>
-        <div class="card" id="userList"></div>
-        <div style="margin:12px 16px 0">
-          <button class="btn bs" onclick="openAddUser()">＋ Add New User</button>
-        </div>
-      </div>
-
-      <div style="height:24px"></div>
-    </div>
-  </div>
-
-  <!-- PAGE 1: ALL CASES -->
-  <div id="p1" class="page">
-    <div class="scroll" id="s1">
       <div style="height:8px"></div>
       <div class="seg" id="grpSeg"></div>
       <div id="allList"></div>
@@ -244,9 +206,9 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <button class="fab" onclick="openAddCase(false)">＋</button>
   </div>
 
-  <!-- PAGE 2: MY CASES -->
-  <div id="p2" class="page">
-    <div class="scroll" id="s2">
+  <!-- PAGE 1: MY CASES -->
+  <div id="p1" class="page">
+    <div class="scroll" id="s1">
       <div style="height:12px"></div>
       <div id="myList"></div>
       <div style="height:16px"></div>
@@ -254,146 +216,195 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <button class="fab" onclick="openAddCase(true)">＋</button>
   </div>
 
-  <!-- PAGE 3: STATS -->
-  <div id="p3" class="page">
-    <div class="scroll" id="s3">
+  <!-- PAGE 2: STATS -->
+  <div id="p2" class="page">
+    <div class="scroll" id="s2">
       <div style="height:8px"></div>
       <div id="statsBody"></div>
       <div style="height:24px"></div>
     </div>
   </div>
 
-  <!-- TAB BAR -->
+  <!-- PAGE 3: SETUP (admin only) -->
+  <div id="p3" class="page">
+    <div class="scroll" id="s3">
+      <!-- Wards -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 16px 8px">
+        <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px">Wards</div>
+        <button class="nbtn" style="font-size:14px" onclick="openAddWard()">＋ Add Ward</button>
+      </div>
+      <div class="card" id="wardList"></div>
+
+      <!-- Groups -->
+      <div id="grpSec" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 16px 8px">
+          <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px">Groups</div>
+          <button class="nbtn" style="font-size:14px" onclick="openAddGroup()">＋ Add Group</button>
+        </div>
+        <div class="card" id="groupList"></div>
+      </div>
+
+      <!-- Users -->
+      <div id="usrSec" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 16px 8px">
+          <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px">Users</div>
+          <button class="nbtn" style="font-size:14px" onclick="openAddUser(false)">＋ Add User</button>
+        </div>
+        <div class="card" id="userList"></div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+  </div>
+
+  <!-- TABBAR -->
   <div class="tabbar">
-    <button class="tab on" id="t0" onclick="goTab(0)"><div class="tab-i">⚙️</div><div class="tab-l">Setup</div></button>
-    <button class="tab" id="t1" onclick="goTab(1)"><div class="tab-i">🏥</div><div class="tab-l">All Cases</div></button>
-    <button class="tab" id="t2" onclick="goTab(2)"><div class="tab-i">👤</div><div class="tab-l">My Cases</div></button>
-    <button class="tab" id="t3" onclick="goTab(3)"><div class="tab-i">📊</div><div class="tab-l">Stats</div></button>
+    <button class="tab on" id="t0" onclick="goTab(0)"><div class="ti">🏥</div><div class="tl">All Cases</div></button>
+    <button class="tab" id="t1" onclick="goTab(1)"><div class="ti">👤</div><div class="tl">My Cases</div></button>
+    <button class="tab" id="t2" onclick="goTab(2)"><div class="ti">📊</div><div class="tl">Stats</div></button>
+    <button class="tab" id="t3" onclick="trySetupTab()"><div class="ti">⚙️</div><div class="tl">Setup</div></button>
   </div>
 </div>
 
-<!-- ═══════════ LOGIN WALL ════════════ -->
+<!-- ═══ LOGIN WALL ═══ -->
 <div id="loginWall">
   <div class="lw-hero">
-    <div style="font-size:52px;margin-bottom:12px">🏥</div>
+    <button class="lw-admin-btn" onclick="openAdminEdit()">⚙ Manage</button>
+    <div style="font-size:50px;margin-bottom:10px">🏥</div>
     <h1>WardSync</h1>
     <p>Patient Case Management</p>
   </div>
   <div class="lw-body">
-    <!-- Step 1: select ward -->
-    <div id="lwStep1">
+    <!-- Step 1: Ward -->
+    <div id="lwS1">
       <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Select Ward</div>
-      <div class="card" id="lwWardList"></div>
+      <div class="card" id="lwWards"></div>
     </div>
-    <!-- Step 2: select group -->
-    <div id="lwStep2" class="hidden">
-      <button class="nav-btn" style="margin-bottom:12px;padding-left:0" onclick="lwBack(1)">‹ Back</button>
+    <!-- Step 2: Group -->
+    <div id="lwS2" class="hidden">
+      <button class="nbtn" style="margin-bottom:10px;font-size:15px" onclick="lwGo(1)">‹ Back</button>
       <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Select Group</div>
-      <div class="card" id="lwGroupList"></div>
+      <div class="card" id="lwGroups"></div>
     </div>
-    <!-- Step 3: select user -->
-    <div id="lwStep3" class="hidden">
-      <button class="nav-btn" style="margin-bottom:12px;padding-left:0" onclick="lwBack(2)">‹ Back</button>
+    <!-- Step 3: User -->
+    <div id="lwS3" class="hidden">
+      <button class="nbtn" style="margin-bottom:10px;font-size:15px" onclick="lwGo(2)">‹ Back</button>
       <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Who are you?</div>
-      <div class="card" id="lwUserList"></div>
-      <div style="height:12px"></div>
-      <button class="btn bs" onclick="openAddUser(true)">＋ Add New User</button>
+      <div class="card" id="lwUsers"></div>
     </div>
     <div style="height:32px"></div>
   </div>
 </div>
 
-<!-- ═══════════ SHEETS ════════════ -->
+<!-- ═══ ADMIN PIN ═══ -->
+<div id="adminPin" class="hide">
+  <div class="pin-box">
+    <div style="font-size:32px;margin-bottom:8px">🔐</div>
+    <h2>Admin Access</h2>
+    <p id="pinMsg">Enter admin password to continue</p>
+    <input class="pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <div class="pin-btns">
+      <button class="btn bs" onclick="closeAdminPin()">Cancel</button>
+      <button class="btn bp" onclick="checkPin()">Unlock</button>
+    </div>
+  </div>
+</div>
 
-<!-- CASE DETAIL -->
+<!-- ═══ ADMIN MANAGE SHEET (from login top-right) ═══ -->
+<div class="ov hide" id="sManage">
+  <div class="sh-el">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nbtn" onclick="close_('sManage')">Done</button>
+      <div class="sh-title">Manage</div>
+      <div style="min-width:60px"></div>
+    </div>
+    <div class="sh-body" id="manageBody"></div>
+  </div>
+</div>
+
+<!-- ═══ CASE DETAIL ═══ -->
 <div class="ov hide" id="sCaseDetail">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sCaseDetail')">Close</button>
+      <button class="nbtn" onclick="close_('sCaseDetail')">Close</button>
       <div class="sh-title" id="detTitle">Detail</div>
-      <button class="nav-btn" onclick="openEditFromDetail()">Edit</button>
+      <button class="nbtn" onclick="openEditFromDetail()">Edit</button>
     </div>
     <div class="sh-body" id="detBody"></div>
   </div>
 </div>
 
-<!-- ADD/EDIT CASE -->
+<!-- ═══ ADD/EDIT CASE ═══ -->
 <div class="ov hide" id="sAddCase">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sAddCase')">Cancel</button>
+      <button class="nbtn" onclick="close_('sAddCase')">Cancel</button>
       <div class="sh-title" id="addCaseTitle">New Case</div>
-      <button class="nav-btn" onclick="submitCase()" id="saveCaseBtn">Save</button>
+      <button class="nbtn" onclick="submitCase()">Save</button>
     </div>
     <div class="sh-body" id="addCaseBody"></div>
   </div>
 </div>
 
-<!-- ADD/EDIT WARD -->
+<!-- ═══ ADD/EDIT WARD ═══ -->
 <div class="ov hide" id="sWard">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sWard')">Cancel</button>
+      <button class="nbtn" onclick="close_('sWard')">Cancel</button>
       <div class="sh-title" id="wardShTitle">Add Ward</div>
-      <button class="nav-btn" onclick="submitWard()">Save</button>
+      <button class="nbtn" onclick="submitWard()">Save</button>
     </div>
     <div class="sh-body">
       <div class="fg"><div class="fl">Ward Name</div><input class="fi" id="wardName" placeholder="e.g. Ward 6 Medical"/></div>
-      <div id="wardDelBtn"></div>
+      <div id="wardDel"></div>
     </div>
   </div>
 </div>
 
-<!-- ADD/EDIT GROUP -->
+<!-- ═══ ADD/EDIT GROUP ═══ -->
 <div class="ov hide" id="sGroup">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sGroup')">Cancel</button>
+      <button class="nbtn" onclick="close_('sGroup')">Cancel</button>
       <div class="sh-title" id="groupShTitle">Add Group</div>
-      <button class="nav-btn" onclick="submitGroup()">Save</button>
+      <button class="nbtn" onclick="submitGroup()">Save</button>
     </div>
     <div class="sh-body">
       <div class="fg"><div class="fl">Group Name</div><input class="fi" id="groupName" placeholder="e.g. Team A"/></div>
-      <div class="fg"><div class="fl">Ward</div><select class="fi" id="groupWardSel"></select></div>
-      <div id="groupDelBtn"></div>
+      <div class="fg"><div class="fl">Ward</div><select class="fi" id="groupWard"></select></div>
+      <div id="groupDel"></div>
     </div>
   </div>
 </div>
 
-<!-- ADD/EDIT USER -->
+<!-- ═══ ADD/EDIT USER ═══ -->
 <div class="ov hide" id="sUser">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sUser')">Cancel</button>
+      <button class="nbtn" onclick="close_('sUser')">Cancel</button>
       <div class="sh-title" id="userShTitle">Add User</div>
-      <button class="nav-btn" onclick="submitUser()">Save</button>
+      <button class="nbtn" onclick="submitUser()">Save</button>
     </div>
-    <div class="sh-body">
-      <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
-      <div class="fg"><div class="fl">Role</div>
-        <select class="fi" id="uRole">
-          <option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option>
-        </select>
-      </div>
-      <div class="fg"><div class="fl">Group</div><select class="fi" id="uGroup"></select></div>
-      <div id="userDelBtn"></div>
+    <div class="sh-body" id="userShBody">
+      <!-- filled dynamically -->
     </div>
   </div>
 </div>
 
-<!-- AI SCAN CONFIRM -->
+<!-- ═══ AI SCAN CONFIRM ═══ -->
 <div class="ov hide" id="sScan">
   <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sScan');openAddCase(false)">Back</button>
-      <div class="sh-title">Confirm Patient Data</div>
-      <button class="nav-btn" onclick="useScan()">Use</button>
+      <button class="nbtn" onclick="close_('sScan');openAddCase(false)">Back</button>
+      <div class="sh-title">Confirm Scan</div>
+      <button class="nbtn" onclick="useScan()">Use</button>
     </div>
     <div class="sh-body" id="scanBody"></div>
   </div>
@@ -403,39 +414,31 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// GOOGLE SHEETS CONFIG
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
 const SHEET_ID = '1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM';
-const APPS_SCRIPT_URL = ''; // Optional: set your Apps Script URL for write operations
-// Google Sheets API key — add your own key here for read, OR deploy Apps Script for full read/write
-const GS_API_KEY = 'YOUR_GOOGLE_API_KEY';
+const APPS_SCRIPT_URL = ''; // Set your Apps Script web app URL for write-back
+const ADMIN_PIN = '1736';
+const TABS = {wards:'Wards',groups:'Groups',users:'Users',cases:'Cases'};
 
-// Sheet tab names (create these tabs in your Google Sheet)
-const TABS = { wards:'Wards', groups:'Groups', users:'Users', cases:'Cases' };
-
-// ═══════════════════════════════════════════════════════════
-// LOCAL DB  (localStorage primary, Sheets sync optional)
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// DB
+// ═══════════════════════════════════════════════════════════════
 let DB = {wards:[],groups:[],users:[],cases:[],lastReset:'',sel:{wId:'',gId:'',uId:''}};
 
 function loadDB(){
-  try{const s=localStorage.getItem('ws5');if(s)DB=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('ws6');if(s)DB=JSON.parse(s);}catch(e){}
   if(!DB.wards||!DB.wards.length)seed();
   dailyReset();
 }
 function save(){
-  localStorage.setItem('ws5',JSON.stringify(DB));
-  pushSheets(); // fire-and-forget
+  localStorage.setItem('ws6',JSON.stringify(DB));
+  if(APPS_SCRIPT_URL)pushSheets();
 }
 async function pushSheets(){
-  // If Apps Script URL is configured, push full DB as JSON
-  if(!APPS_SCRIPT_URL)return;
-  try{
-    await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(DB),headers:{'Content-Type':'application/json'}});
-  }catch(e){}
+  try{await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(DB),headers:{'Content-Type':'application/json'}});}catch(e){}
 }
-
 function seed(){
   DB={
     wards:[{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'}],
@@ -448,9 +451,9 @@ function seed(){
       {id:'u5',gId:'g2',name:'Nurse Darunee N.',role:'Nurse'}
     ],
     cases:[
-      {id:'c1',gId:'g1',hn:'HN001234',name:'Somjai Rakdee',dx:'T2DM with Hyperglycemia',admit:'2025-04-28',uid:'u1',report:null,round:false,admNote:false,out:false},
-      {id:'c2',gId:'g1',hn:'HN001235',name:'Pranee Srisuk',dx:'Hypertensive Crisis',admit:'2025-05-01',uid:'u2',report:true,round:true,admNote:true,out:false},
-      {id:'c3',gId:'g2',hn:'HN001236',name:'Boonma Intawong',dx:'Community-Acquired Pneumonia',admit:'2025-05-03',uid:'u4',report:false,round:false,admNote:false,out:false}
+      {id:'c1',gId:'g1',hn:'HN001234',name:'Somjai Rakdee',dx:'T2DM with Hyperglycemia',admit:'2025-04-28',uid:'u1',report:null,reportWriter:null,round:false,admNote:false,out:false},
+      {id:'c2',gId:'g1',hn:'HN001235',name:'Pranee Srisuk',dx:'Hypertensive Crisis',admit:'2025-05-01',uid:'u2',report:true,reportWriter:'u2',round:true,admNote:true,out:false},
+      {id:'c3',gId:'g2',hn:'HN001236',name:'Boonma Intawong',dx:'Community-Acquired Pneumonia',admit:'2025-05-03',uid:'u4',report:false,reportWriter:null,round:false,admNote:false,out:false}
     ],
     lastReset:new Date().toDateString(),
     sel:{wId:'',gId:'',uId:''}
@@ -462,12 +465,10 @@ function dailyReset(){
   if(DB.lastReset!==td){DB.cases.forEach(c=>{if(!c.out)c.round=false;});DB.lastReset=td;save();}
 }
 
-// ═══════════════════════════════════════════════════════════
-// GOOGLE SHEETS READ (public sheet via CSV export trick)
-// Uses gid-based CSV which works without API key on public sheets
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// GOOGLE SHEETS READ (public CSV)
+// ═══════════════════════════════════════════════════════════════
 async function loadFromSheets(){
-  // We use the public CSV export which works on sheets shared publicly
   const base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
   try{
     const [wR,gR,uR,cR]=await Promise.all([
@@ -476,55 +477,37 @@ async function loadFromSheets(){
       fetch(base+encodeURIComponent(TABS.users)).then(r=>r.text()),
       fetch(base+encodeURIComponent(TABS.cases)).then(r=>r.text()),
     ]);
-    const wards=parseCSV(wR);
-    const groups=parseCSV(gR);
-    const users=parseCSV(uR);
-    const cases=parseCSV(cR);
-
+    const wards=parseCSV(wR),groups=parseCSV(gR),users=parseCSV(uR),cases=parseCSV(cR);
     if(wards.length){
       DB.wards=wards.map(r=>({id:r.id||uid(),name:r.name||''})).filter(r=>r.name);
       DB.groups=groups.map(r=>({id:r.id||uid(),wId:r.wId||r.wardId||'',name:r.name||''})).filter(r=>r.name);
       DB.users=users.map(r=>({id:r.id||uid(),gId:r.gId||r.groupId||'',name:r.name||'',role:r.role||'Nurse'})).filter(r=>r.name);
       DB.cases=cases.map(r=>({
-        id:r.id||uid(),gId:r.gId||r.groupId||'',hn:r.hn||'',
-        name:r.name||'',dx:r.dx||r.diagnosis||'',admit:r.admit||r.admitDate||'',
-        uid:r.uid||r.userId||'',
+        id:r.id||uid(),gId:r.gId||r.groupId||'',hn:r.hn||'',name:r.name||'',
+        dx:r.dx||r.diagnosis||'',admit:r.admit||r.admitDate||'',uid:r.uid||r.userId||'',
         report:r.report===''||r.report===undefined?null:r.report==='true'?true:r.report==='false'?false:null,
+        reportWriter:r.reportWriter||null,
         round:r.round==='true',admNote:r.admNote==='true'||r.admissionNote==='true',
         out:r.out==='true'||r.discharged==='true'
       })).filter(r=>r.hn);
       save();
-      console.log('[GS] Loaded from Sheets ✓');
     }
-  }catch(e){console.warn('[GS] Load failed, using localStorage:',e.message);}
+  }catch(e){console.warn('[GS]',e.message);}
 }
-
-function parseCSV(text){
-  const lines=text.trim().split('\n');
-  if(lines.length<2)return[];
-  const hdr=csvLine(lines[0]);
-  return lines.slice(1).map(l=>{
-    const vals=csvLine(l);
-    const obj={};
-    hdr.forEach((h,i)=>obj[h.trim()]=vals[i]?vals[i].trim():'');
-    return obj;
-  }).filter(r=>Object.values(r).some(v=>v));
+function parseCSV(t){
+  const lines=t.trim().split('\n');if(lines.length<2)return[];
+  const h=csvLine(lines[0]);
+  return lines.slice(1).map(l=>{const v=csvLine(l);const o={};h.forEach((k,i)=>o[k.trim()]=v[i]?v[i].trim():'');return o;}).filter(r=>Object.values(r).some(v=>v));
 }
 function csvLine(l){
-  const res=[];let cur='',inQ=false;
-  for(let i=0;i<l.length;i++){
-    const c=l[i];
-    if(c==='"'){inQ=!inQ;}
-    else if(c===','&&!inQ){res.push(cur);cur='';}
-    else cur+=c;
-  }
-  res.push(cur);
-  return res;
+  const r=[];let c='',q=false;
+  for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}
+  r.push(c);return r;
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 const uid=()=>'_'+Math.random().toString(36).substr(2,9);
 const gW=id=>DB.wards.find(x=>x.id===id);
 const gG=id=>DB.groups.find(x=>x.id===id);
@@ -536,272 +519,406 @@ const gCbyU=uId=>DB.cases.filter(c=>c.uid===uId&&!c.out);
 const days=d=>{if(!d)return 0;return Math.floor((Date.now()-new Date(d))/86400000);};
 const ini=n=>n.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
 const esc=s=>!s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const colors=['#007AFF','#34C759','#FF9500','#AF52DE','#FF3B30','#5AC8FA','#FF2D55','#FFCC00'];
-function hCol(s){let n=0;for(let i=0;i<s.length;i++)n=(n+s.charCodeAt(i))%colors.length;return colors[n];}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+const COLS=['#007AFF','#34C759','#FF9500','#AF52DE','#FF3B30','#5AC8FA','#FF2D55'];
+function hCol(s){let n=0;for(let i=0;i<s.length;i++)n=(n+s.charCodeAt(i))%COLS.length;return COLS[n];}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function open_(id){document.getElementById(id).classList.remove('hide');}
 function close_(id){document.getElementById(id).classList.add('hide');}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════
-let curTab=0,curGF='',editId=null,scanD={},editWardId=null,editGroupId=null,editUserId=null,fromLogin=false;
+// ═══════════════════════════════════════════════════════════════
+let curTab=0,curGF='',editId=null,scanD={};
+let eWardId=null,eGroupId=null,eUserId=null;
+let pinTarget='setup'; // 'setup' | 'manage'
+let adminUnlocked=false; // persists for session on setup tab
 
-// ═══════════════════════════════════════════════════════════
-// LOGIN WALL
-// ═══════════════════════════════════════════════════════════
-function renderLoginWall(){
-  // Step 1: wards
-  document.getElementById('lwWardList').innerHTML=DB.wards.map(w=>`
-    <div class="row" onclick="lwSelWard('${w.id}')">
-      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups</div></div>
-      <div class="chev">›</div>
-    </div>`).join('');
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PIN
+// ═══════════════════════════════════════════════════════════════
+function openAdminPin(target){
+  pinTarget=target;
+  document.getElementById('pinMsg').textContent='Enter admin password to continue';
+  document.getElementById('pinInput').value='';
+  document.getElementById('adminPin').classList.remove('hide');
+  setTimeout(()=>document.getElementById('pinInput').focus(),100);
 }
-function lwSelWard(wId){
-  DB.sel.wId=wId;
-  const groups=gGbyW(wId);
-  document.getElementById('lwGroupList').innerHTML=groups.map(g=>`
-    <div class="row" onclick="lwSelGroup('${g.id}')">
-      <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users</div></div>
-      <div class="chev">›</div>
-    </div>`).join('');
-  document.getElementById('lwStep1').classList.add('hidden');
-  document.getElementById('lwStep2').classList.remove('hidden');
-  document.getElementById('lwStep2').scrollIntoView({behavior:'smooth'});
+function closeAdminPin(){document.getElementById('adminPin').classList.add('hide');}
+function checkPin(){
+  const v=document.getElementById('pinInput').value;
+  if(v===ADMIN_PIN){
+    closeAdminPin();
+    if(pinTarget==='setup'){adminUnlocked=true;activateSetupTab();}
+    else if(pinTarget==='manage'){openManageSheet();}
+  } else {
+    document.getElementById('pinMsg').textContent='Incorrect password. Try again.';
+    document.getElementById('pinInput').value='';
+    document.getElementById('pinInput').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('pinInput').style.borderColor='',1200);
+  }
 }
-function lwSelGroup(gId){
-  DB.sel.gId=gId;curGF=gId;
-  const users=gUbyG(gId);
-  document.getElementById('lwUserList').innerHTML=users.map(u=>`
-    <div class="row" onclick="lwSelUser('${u.id}')">
-      <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
-      <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
-      <div class="chev">›</div>
-    </div>`).join('');
-  document.getElementById('lwStep2').classList.add('hidden');
-  document.getElementById('lwStep3').classList.remove('hidden');
-  document.getElementById('lwStep3').scrollIntoView({behavior:'smooth'});
+function trySetupTab(){
+  if(adminUnlocked){activateSetupTab();return;}
+  openAdminPin('setup');
 }
-function lwSelUser(uId){
-  DB.sel.uId=uId;save();
-  document.getElementById('loginWall').classList.add('hide');
-  renderSetup();updateNav();
-  toast('Welcome, '+gU(uId)?.name+' 👋');
-}
-function lwBack(toStep){
-  [1,2,3].forEach(i=>document.getElementById('lwStep'+i).classList.add('hidden'));
-  document.getElementById('lwStep'+toStep).classList.remove('hidden');
+function activateSetupTab(){
+  goTab(3,true);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // TABS
-// ═══════════════════════════════════════════════════════════
-function goTab(i){
+// ═══════════════════════════════════════════════════════════════
+function goTab(i,skipPin=false){
+  if(i===3&&!skipPin&&!adminUnlocked){trySetupTab();return;}
   [0,1,2,3].forEach(n=>{
     document.getElementById('p'+n).classList.toggle('on',n===i);
     document.getElementById('t'+n).classList.toggle('on',n===i);
   });
   curTab=i;updateNav();
-  if(i===1)renderAll();
-  if(i===2)renderMy();
-  if(i===3)renderStats();
+  if(i===0)renderAll();
+  if(i===1)renderMy();
+  if(i===2)renderStats();
+  if(i===3)renderSetup();
 }
 function updateNav(){
   const w=gW(DB.sel.wId),g=gG(DB.sel.gId),u=gU(DB.sel.uId);
-  const titles=['Setup','All Cases','My Cases','Statistics'];
+  const titles=['All Cases','My Cases','Statistics','Setup'];
   document.getElementById('navT').textContent=titles[curTab];
   const sub=document.getElementById('navSub');
-  if(w&&g&&u&&curTab>0){sub.textContent=`${w.name} · ${g.name} · ${u.name}`;sub.classList.remove('hidden');}
+  if(w&&g&&u&&curTab<3){sub.textContent=`${w.name} · ${g.name} · ${u.name}`;sub.classList.remove('hidden');}
   else sub.classList.add('hidden');
-  // Change user button in setup
   document.getElementById('navL').innerHTML='';
   document.getElementById('navR').innerHTML='';
-  if(curTab===0){
-    document.getElementById('navR').innerHTML=`<button class="nav-btn" onclick="showLoginWall()">Change User</button>`;
+  if(curTab<3){
+    document.getElementById('navR').innerHTML=`<button class="nbtn" style="font-size:13px" onclick="showLoginWall()">Change User</button>`;
+  }
+  if(curTab===3){
+    document.getElementById('navR').innerHTML=`<button class="nbtn red" style="font-size:13px" onclick="lockSetup()">Lock</button>`;
   }
 }
+function lockSetup(){adminUnlocked=false;goTab(0,true);}
 
+// ═══════════════════════════════════════════════════════════════
+// LOGIN WALL
+// ═══════════════════════════════════════════════════════════════
+function renderLoginWall(){
+  document.getElementById('lwWards').innerHTML=DB.wards.map(w=>`
+    <div class="row" onclick="lwSelWard('${w.id}')">
+      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups</div></div>
+      <div class="chev">›</div>
+    </div>`).join('')||'<div class="row-nd" style="color:var(--txt3)">No wards — use Manage to add</div>';
+}
+function lwSelWard(wId){
+  DB.sel.wId=wId;
+  document.getElementById('lwGroups').innerHTML=gGbyW(wId).map(g=>`
+    <div class="row" onclick="lwSelGroup('${g.id}')">
+      <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users</div></div>
+      <div class="chev">›</div>
+    </div>`).join('')||'<div class="row-nd" style="color:var(--txt3)">No groups</div>';
+  lwGo(2);
+}
+function lwSelGroup(gId){
+  DB.sel.gId=gId;curGF=gId;
+  document.getElementById('lwUsers').innerHTML=gUbyG(gId).map(u=>`
+    <div class="row" onclick="lwSelUser('${u.id}')">
+      <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+      <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
+      <div class="chev">›</div>
+    </div>`).join('')||'<div class="row-nd" style="color:var(--txt3)">No users — use Manage to add</div>';
+  lwGo(3);
+}
+function lwSelUser(uId){
+  DB.sel.uId=uId;save();
+  document.getElementById('loginWall').classList.add('hide');
+  updateNav();renderAll();
+  toast('Welcome, '+gU(uId)?.name+' 👋');
+}
+function lwGo(step){
+  [1,2,3].forEach(i=>document.getElementById('lwS'+i).classList.toggle('hidden',i!==step));
+}
 function showLoginWall(){
-  // reset login steps
-  [1,2,3].forEach(i=>document.getElementById('lwStep'+i).classList.add('hidden'));
-  document.getElementById('lwStep1').classList.remove('hidden');
-  renderLoginWall();
+  lwGo(1);renderLoginWall();
   document.getElementById('loginWall').classList.remove('hide');
 }
 
-// ═══════════════════════════════════════════════════════════
-// PAGE 0: SETUP (Manage Wards/Groups/Users)
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// MANAGE SHEET (from login top-right "⚙ Manage" button)
+// ═══════════════════════════════════════════════════════════════
+function openAdminEdit(){
+  openAdminPin('manage');
+}
+function openManageSheet(){
+  renderManageBody();
+  open_('sManage');
+}
+function renderManageBody(){
+  const body=document.getElementById('manageBody');
+  // Show wards with edit + add-group, groups with edit, users with edit
+  let html='';
+
+  // Wards section
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="fl" style="margin:0">Wards</div>
+    <button class="nbtn" style="font-size:14px" onclick="openAddWard(true)">＋ Add</button>
+  </div>
+  <div class="ic" style="margin-bottom:20px">
+    ${DB.wards.map(w=>`
+      <div class="row">
+        <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups</div></div>
+        <button class="nbtn" style="font-size:13px;color:var(--blue)" onclick="openEditWard('${w.id}',true)">Edit</button>
+      </div>`).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">None yet</div>'}
+  </div>`;
+
+  // Groups section
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="fl" style="margin:0">Groups</div>
+    <button class="nbtn" style="font-size:14px" onclick="openAddGroup(true)">＋ Add</button>
+  </div>
+  <div class="ic" style="margin-bottom:20px">
+    ${DB.groups.map(g=>{const w=gW(g.wId);return`
+      <div class="row">
+        <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${w?w.name:''} · ${gUbyG(g.id).length} users</div></div>
+        <button class="nbtn" style="font-size:13px" onclick="openEditGroup('${g.id}',true)">Edit</button>
+      </div>`;}).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">None yet</div>'}
+  </div>`;
+
+  // Users section — show ward→group→user flow
+  html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="fl" style="margin:0">Users</div>
+    <button class="nbtn" style="font-size:14px" onclick="openAddUserFromManage()">＋ Add</button>
+  </div>
+  <div class="ic" style="margin-bottom:8px">
+    ${DB.users.map(u=>{const g=gG(u.gId);return`
+      <div class="row">
+        <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)}${g?' · '+g.name:''}</div></div>
+        <button class="nbtn" style="font-size:13px" onclick="openEditUser('${u.id}',true)">Edit</button>
+      </div>`;}).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">None yet</div>'}
+  </div>`;
+
+  body.innerHTML=html;
+}
+
+// When adding user from manage sheet: open add-user with ward→group→user flow
+function openAddUserFromManage(){
+  // We'll use the sUser sheet but with a ward picker that cascades to group
+  eUserId=null;
+  document.getElementById('userShTitle').textContent='Add User';
+  document.getElementById('userShBody').innerHTML=`
+    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
+    <div class="fg"><div class="fl">Role</div>
+      <select class="fi" id="uRole">
+        <option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option>
+      </select>
+    </div>
+    <div class="fg"><div class="fl">Ward</div>
+      <select class="fi" id="uWardSel" onchange="cascadeUserGroup()">
+        <option value="">— Select Ward —</option>
+        ${DB.wards.map(w=>`<option value="${w.id}">${esc(w.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg" id="uGroupFg" class="hidden"><div class="fl">Group</div>
+      <select class="fi" id="uGroupSel">
+        <option value="">— Select Group —</option>
+      </select>
+    </div>
+  `;
+  open_('sUser');
+}
+function cascadeUserGroup(){
+  const wId=document.getElementById('uWardSel').value;
+  const grps=gGbyW(wId);
+  const fg=document.getElementById('uGroupFg');
+  const sel=document.getElementById('uGroupSel');
+  sel.innerHTML='<option value="">— Select Group —</option>'+grps.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  fg&&fg.classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SETUP PAGE (tab 3)
+// ═══════════════════════════════════════════════════════════════
 function renderSetup(){
-  // Wards
+  const selW=DB.sel.wId;
   document.getElementById('wardList').innerHTML=DB.wards.map(w=>`
     <div class="row" onclick="selWard('${w.id}')">
-      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups · ${gCbyG(w.id).length} cases</div></div>
-      <button class="nav-btn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditWard('${w.id}')">Edit</button>
-      ${DB.sel.wId===w.id?'<div style="color:var(--blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
-    </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No wards yet — add one above</div>';
+      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups</div></div>
+      <button class="nbtn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditWard('${w.id}')">Edit</button>
+      ${selW===w.id?'<div style="color:var(--blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+    </div>`).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">No wards yet</div>';
 
-  if(DB.sel.wId){
+  if(selW){
     document.getElementById('grpSec').classList.remove('hidden');
-    document.getElementById('groupList').innerHTML=gGbyW(DB.sel.wId).map(g=>`
+    document.getElementById('groupList').innerHTML=gGbyW(selW).map(g=>`
       <div class="row" onclick="selGroup('${g.id}')">
-        <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users · ${gCbyG(g.id).length} active cases</div></div>
-        <button class="nav-btn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditGroup('${g.id}')">Edit</button>
+        <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users · ${gCbyG(g.id).length} cases</div></div>
+        <button class="nbtn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditGroup('${g.id}')">Edit</button>
         ${DB.sel.gId===g.id?'<div style="color:var(--blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
-      </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No groups yet</div>';
+      </div>`).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">No groups yet</div>';
   }
 
   if(DB.sel.gId){
     document.getElementById('usrSec').classList.remove('hidden');
     document.getElementById('userList').innerHTML=gUbyG(DB.sel.gId).map(u=>`
-      <div class="row" onclick="">
+      <div class="row-nd">
         <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
-        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
-        <button class="nav-btn" style="font-size:13px" onclick="openEditUser('${u.id}')">Edit</button>
-      </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No users yet</div>';
+        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)}</div></div>
+        <button class="nbtn" style="font-size:13px" onclick="openEditUser('${u.id}')">Edit</button>
+      </div>`).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">No users yet</div>';
   }
 }
 function selWard(id){DB.sel.wId=id;DB.sel.gId='';save();renderSetup();document.getElementById('grpSec').scrollIntoView({behavior:'smooth'});}
 function selGroup(id){DB.sel.gId=id;curGF=id;save();renderSetup();document.getElementById('usrSec').scrollIntoView({behavior:'smooth'});}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // WARD CRUD
-// ═══════════════════════════════════════════════════════════
-function openAddWard(){
-  editWardId=null;
+// ═══════════════════════════════════════════════════════════════
+function openAddWard(fromManage=false){
+  eWardId=null;
   document.getElementById('wardShTitle').textContent='Add Ward';
   document.getElementById('wardName').value='';
-  document.getElementById('wardDelBtn').innerHTML='';
+  document.getElementById('wardDel').innerHTML='';
   open_('sWard');
 }
-function openEditWard(id){
-  editWardId=id;const w=gW(id);
+function openEditWard(id,fromManage=false){
+  eWardId=id;const w=gW(id);
   document.getElementById('wardShTitle').textContent='Edit Ward';
   document.getElementById('wardName').value=w?w.name:'';
-  document.getElementById('wardDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delWard('${id}')">Delete Ward</button>`;
+  document.getElementById('wardDel').innerHTML=`<button class="btn br" onclick="delWard('${id}')">Delete Ward</button>`;
   open_('sWard');
 }
 function submitWard(){
   const name=document.getElementById('wardName').value.trim();
   if(!name){toast('Enter a ward name');return;}
-  if(editWardId){const w=gW(editWardId);if(w)w.name=name;toast('Ward updated ✓');}
+  if(eWardId){const w=gW(eWardId);if(w)w.name=name;toast('Ward updated ✓');}
   else{DB.wards.push({id:uid(),name});toast('Ward added ✓');}
-  save();close_('sWard');renderSetup();renderLoginWall();
+  save();close_('sWard');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delWard(id){
-  if(!confirm('Delete this ward? All groups and users in it will be removed.'))return;
+  if(!confirm('Delete this ward and all its groups?'))return;
+  const gids=DB.groups.filter(g=>g.wId===id).map(g=>g.id);
   DB.wards=DB.wards.filter(w=>w.id!==id);
   DB.groups=DB.groups.filter(g=>g.wId!==id);
-  const gIds=DB.groups.map(g=>g.id);
-  DB.users=DB.users.filter(u=>gIds.includes(u.gId));
+  DB.users=DB.users.filter(u=>!gids.includes(u.gId));
   if(DB.sel.wId===id){DB.sel.wId='';DB.sel.gId='';DB.sel.uId='';}
-  save();close_('sWard');renderSetup();renderLoginWall();toast('Ward deleted');
+  save();close_('sWard');renderSetup();renderLoginWall();renderManageBodySafe();toast('Ward deleted');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // GROUP CRUD
-// ═══════════════════════════════════════════════════════════
-function openAddGroup(){
-  editGroupId=null;
+// ═══════════════════════════════════════════════════════════════
+function openAddGroup(fromManage=false){
+  eGroupId=null;
   document.getElementById('groupShTitle').textContent='Add Group';
   document.getElementById('groupName').value='';
-  document.getElementById('groupWardSel').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${w.id===DB.sel.wId?' selected':''}>${esc(w.name)}</option>`).join('');
-  document.getElementById('groupDelBtn').innerHTML='';
+  document.getElementById('groupWard').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${w.id===DB.sel.wId?' selected':''}>${esc(w.name)}</option>`).join('');
+  document.getElementById('groupDel').innerHTML='';
   open_('sGroup');
 }
-function openEditGroup(id){
-  editGroupId=id;const g=gG(id);
+function openEditGroup(id,fromManage=false){
+  eGroupId=id;const g=gG(id);
   document.getElementById('groupShTitle').textContent='Edit Group';
   document.getElementById('groupName').value=g?g.name:'';
-  document.getElementById('groupWardSel').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${g&&w.id===g.wId?' selected':''}>${esc(w.name)}</option>`).join('');
-  document.getElementById('groupDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delGroup('${id}')">Delete Group</button>`;
+  document.getElementById('groupWard').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${g&&w.id===g.wId?' selected':''}>${esc(w.name)}</option>`).join('');
+  document.getElementById('groupDel').innerHTML=`<button class="btn br" onclick="delGroup('${id}')">Delete Group</button>`;
   open_('sGroup');
 }
 function submitGroup(){
   const name=document.getElementById('groupName').value.trim();
-  const wId=document.getElementById('groupWardSel').value;
+  const wId=document.getElementById('groupWard').value;
   if(!name){toast('Enter a group name');return;}
-  if(editGroupId){const g=gG(editGroupId);if(g){g.name=name;g.wId=wId;}toast('Group updated ✓');}
+  if(eGroupId){const g=gG(eGroupId);if(g){g.name=name;g.wId=wId;}toast('Group updated ✓');}
   else{DB.groups.push({id:uid(),wId,name});toast('Group added ✓');}
-  save();close_('sGroup');renderSetup();renderLoginWall();
+  save();close_('sGroup');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delGroup(id){
   if(!confirm('Delete this group?'))return;
   DB.groups=DB.groups.filter(g=>g.id!==id);
   DB.users=DB.users.filter(u=>u.gId!==id);
   if(DB.sel.gId===id){DB.sel.gId='';DB.sel.uId='';}
-  save();close_('sGroup');renderSetup();renderLoginWall();toast('Group deleted');
+  save();close_('sGroup');renderSetup();renderLoginWall();renderManageBodySafe();toast('Group deleted');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // USER CRUD
-// ═══════════════════════════════════════════════════════════
-function openAddUser(fromLW=false){
-  editUserId=null;fromLogin=fromLW;
+// ═══════════════════════════════════════════════════════════════
+function openAddUser(fromManage=false){
+  eUserId=null;
   document.getElementById('userShTitle').textContent='Add User';
-  document.getElementById('uName').value='';
-  const grps=DB.sel.gId?gGbyW(DB.sel.wId):DB.groups;
-  document.getElementById('uGroup').innerHTML=grps.map(g=>`<option value="${g.id}"${g.id===DB.sel.gId?' selected':''}>${esc(g.name)}</option>`).join('');
-  document.getElementById('userDelBtn').innerHTML='';
+  const grps=DB.sel.gId?[{id:DB.sel.gId,name:gG(DB.sel.gId)?.name}]:DB.groups;
+  document.getElementById('userShBody').innerHTML=`
+    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
+    <div class="fg"><div class="fl">Role</div>
+      <select class="fi" id="uRole"><option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option></select>
+    </div>
+    <div class="fg"><div class="fl">Group</div>
+      <select class="fi" id="uGroupSel">
+        ${DB.groups.map(g=>`<option value="${g.id}"${g.id===DB.sel.gId?' selected':''}>${esc(g.name)}</option>`).join('')}
+      </select>
+    </div>
+  `;
   open_('sUser');
 }
-function openEditUser(id){
-  editUserId=id;fromLogin=false;const u=gU(id);
+function openEditUser(id,fromManage=false){
+  eUserId=id;const u=gU(id);
   document.getElementById('userShTitle').textContent='Edit User';
-  document.getElementById('uName').value=u?u.name:'';
-  document.getElementById('uRole').value=u?u.role:'Nurse';
-  const grps=DB.groups;
-  document.getElementById('uGroup').innerHTML=grps.map(g=>`<option value="${g.id}"${u&&g.id===u.gId?' selected':''}>${esc(g.name)}</option>`).join('');
-  document.getElementById('userDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delUser('${id}')">Delete User</button>`;
+  document.getElementById('userShBody').innerHTML=`
+    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" value="${esc(u?u.name:'')}"/></div>
+    <div class="fg"><div class="fl">Role</div>
+      <select class="fi" id="uRole"><option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option></select>
+    </div>
+    <div class="fg"><div class="fl">Group</div>
+      <select class="fi" id="uGroupSel">
+        ${DB.groups.map(g=>`<option value="${g.id}"${u&&g.id===u.gId?' selected':''}>${esc(g.name)}</option>`).join('')}
+      </select>
+    </div>
+    <button class="btn br" style="margin-top:4px" onclick="delUser('${id}')">Delete User</button>
+  `;
+  if(u)setTimeout(()=>{const r=document.getElementById('uRole');if(r)r.value=u.role;},30);
   open_('sUser');
 }
 function submitUser(){
   const name=document.getElementById('uName').value.trim();
-  const role=document.getElementById('uRole').value;
-  const gId=document.getElementById('uGroup').value;
+  const role=document.getElementById('uRole')?.value||'Nurse';
+  // Group might come from uGroupSel or cascaded uGroupSel (from openAddUserFromManage)
+  const gId=(document.getElementById('uGroupSel')?.value)||'';
   if(!name){toast('Enter a name');return;}
-  if(editUserId){const u=gU(editUserId);if(u){u.name=name;u.role=role;u.gId=gId;}toast('User updated ✓');}
-  else{const nu={id:uid(),gId,name,role};DB.users.push(nu);
-    if(fromLogin){
-      // Refresh login wall user list
-      close_('sUser');save();renderSetup();
-      // Re-trigger group selection to refresh user list in login
-      DB.sel.gId=gId;lwSelGroup(gId);return;
-    }
-    toast('User added ✓');
-  }
-  save();close_('sUser');renderSetup();renderLoginWall();
+  if(!gId){toast('Select a group');return;}
+  if(eUserId){const u=gU(eUserId);if(u){u.name=name;u.role=role;u.gId=gId;}toast('User updated ✓');}
+  else{DB.users.push({id:uid(),gId,name,role});toast('User added ✓');}
+  save();close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delUser(id){
   if(!confirm('Delete this user?'))return;
   DB.users=DB.users.filter(u=>u.id!==id);
   if(DB.sel.uId===id)DB.sel.uId='';
-  save();close_('sUser');renderSetup();renderLoginWall();toast('User deleted');
+  save();close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();toast('User deleted');
+}
+function renderManageBodySafe(){
+  // Only re-render manage body if the sheet is open
+  if(!document.getElementById('sManage').classList.contains('hide'))renderManageBody();
 }
 
-// ═══════════════════════════════════════════════════════════
-// CASE CARD RENDERER
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CASE CARD
+// ═══════════════════════════════════════════════════════════════
 function caseCard(c){
   const u=gU(c.uid);
   const d=days(c.admit);
-  const dayTxt=d===0?'Today':`Day ${d}`;
-  // report badge: null=not set, true=will write, false=won't write
+  const rw=c.reportWriter?gU(c.reportWriter):null;
   let rptBadge='';
-  if(c.report===true) rptBadge='<span class="badge b-green">📝 Writing Report</span>';
-  else if(c.report===false) rptBadge='<span class="badge b-red">✗ No Report</span>';
-  return `<div class="cc" onclick="openDetail('${c.id}')">
+  if(c.report===true)rptBadge=`<span class="badge b-green">📝 ${rw?esc(rw.name.split(' ')[0]):'Writing'}</span>`;
+  else if(c.report===false)rptBadge='<span class="badge b-red">✗ No Report</span>';
+  return`<div class="cc" onclick="openDetail('${c.id}')">
     <div class="cc-h">
       <div class="cc-b">
         <div class="cc-hn">${esc(c.hn)}</div>
         <div class="cc-n">${esc(c.name)}</div>
         <div class="cc-d">${esc(c.dx)}</div>
       </div>
-      <div class="cc-day">${dayTxt}</div>
+      <div class="cc-day">${d===0?'Today':'Day '+d}</div>
     </div>
     <div class="cc-f">
-      ${c.round?'<span class="badge b-green">✓ Rounded</span>':''}
+      ${c.round?'<span class="badge b-green">✓ Round</span>':''}
       ${c.admNote?'<span class="badge b-blue">📋 Adm.Note</span>':''}
       ${rptBadge}
       ${u?`<span class="badge b-gray" style="margin-left:auto">👤 ${esc(u.name)}</span>`:''}
@@ -809,32 +926,32 @@ function caseCard(c){
   </div>`;
 }
 
-// ═══════════════════════════════════════════════════════════
-// PAGE 1: ALL CASES
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// PAGE 0: ALL CASES
+// ═══════════════════════════════════════════════════════════════
 function renderAll(){
   if(!DB.sel.gId){document.getElementById('allList').innerHTML=emptySetup();document.getElementById('grpSeg').innerHTML='';return;}
   const wGs=gGbyW(DB.sel.wId);
   if(!curGF||!gG(curGF))curGF=DB.sel.gId;
   document.getElementById('grpSeg').innerHTML=wGs.map(g=>`<button class="seg-b${curGF===g.id?' on':''}" onclick="setGF('${g.id}')">${esc(g.name)}</button>`).join('');
   const cases=gCbyG(curGF);
-  document.getElementById('allList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Active Cases</div><div class="empty-s">Tap + to add a case</div></div>`;
+  document.getElementById('allList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty" style="text-align:center;padding:60px 32px;color:var(--txt3)"><div style="font-size:52px;margin-bottom:14px">📋</div><div style="font-size:17px;font-weight:600;color:var(--txt2)">No Active Cases</div><div style="font-size:15px;margin-top:6px">Tap + to add a case</div></div>`;
 }
 function setGF(id){curGF=id;renderAll();}
 
-// ═══════════════════════════════════════════════════════════
-// PAGE 2: MY CASES
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// PAGE 1: MY CASES
+// ═══════════════════════════════════════════════════════════════
 function renderMy(){
   if(!DB.sel.uId){document.getElementById('myList').innerHTML=emptySetup();return;}
   const cases=gCbyU(DB.sel.uId);
-  document.getElementById('myList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Cases Assigned</div><div class="empty-s">Cases assigned to you appear here</div></div>`;
+  document.getElementById('myList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div style="text-align:center;padding:60px 32px;color:var(--txt3)"><div style="font-size:52px;margin-bottom:14px">📋</div><div style="font-size:17px;font-weight:600;color:var(--txt2)">No Cases Assigned</div><div style="font-size:15px;margin-top:6px">Cases assigned to you appear here</div></div>`;
 }
-function emptySetup(){return`<div class="empty"><div class="empty-i">⚙️</div><div class="empty-t">Setup Required</div><div class="empty-s">Select a ward, group &amp; user first</div></div>`;}
+function emptySetup(){return`<div style="text-align:center;padding:60px 32px;color:var(--txt3)"><div style="font-size:52px;margin-bottom:14px">⚙️</div><div style="font-size:17px;font-weight:600;color:var(--txt2)">Setup Required</div><div style="font-size:15px;margin-top:6px">Tap the login screen to select ward, group &amp; user</div></div>`;}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // CASE DETAIL
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function openDetail(id){
   const c=DB.cases.find(x=>x.id===id);if(!c)return;
   editId=id;
@@ -842,8 +959,12 @@ function openDetail(id){
   const g=gG(c.gId),d=days(c.admit);
   const users=g?gUbyG(g.id):[];
 
+  // report writer display
+  const rw=c.reportWriter?gU(c.reportWriter):null;
+  const rwName=c.reportWriter==='__other__'?(c.reportWriterName||'Other'):rw?rw.name:'';
+
   document.getElementById('detBody').innerHTML=`
-    <div class="inline-card" style="margin-bottom:16px">
+    <div class="ic" style="margin-bottom:16px">
       <div class="row-nd"><div class="rb">
         <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:2px">${esc(c.hn)}</div>
         <div style="font-size:20px;font-weight:700">${esc(c.name)}</div>
@@ -854,7 +975,7 @@ function openDetail(id){
     </div>
 
     <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Daily Checklist</div>
-    <div class="inline-card" style="margin-bottom:16px">
+    <div class="ic" style="margin-bottom:16px">
       <div class="ck-row">
         <div class="ck${c.round?' on':''}" id="dRound" onclick="tgl('${c.id}','round')"></div>
         <div class="ck-lbl">Round</div><div class="ck-note">Resets daily</div>
@@ -866,19 +987,37 @@ function openDetail(id){
     </div>
 
     <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Report Plan</div>
-    <div class="inline-card" style="margin-bottom:16px">
-      <div class="ck-row" style="gap:10px">
-        <div style="font-size:15px;flex:1">Will write report for this case?</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="setReport('${c.id}',true)" id="rptYes" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===true?'var(--green)':' var(--gray5)'};color:${c.report===true?'#fff':'var(--txt3)'}">Yes</button>
-          <button onclick="setReport('${c.id}',false)" id="rptNo" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===false?'var(--red)':'var(--gray5)'};color:${c.report===false?'#fff':'var(--txt3)'}">No</button>
-          <button onclick="setReport('${c.id}',null)" id="rptNone" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===null?'var(--gray)':'var(--gray5)'};color:${c.report===null?'#fff':'var(--txt3)'}">—</button>
+    <div class="ic" style="margin-bottom:16px">
+      <div style="padding:14px 16px">
+        <div style="font-size:15px;margin-bottom:12px;font-weight:500">Will write a report for this case?</div>
+        <div class="rpt-toggle" id="rptToggle">
+          <button class="rpt-btn" id="rptY" onclick="setReport('${c.id}',true)"
+            style="background:${c.report===true?'var(--green)':'var(--gray5)'};color:${c.report===true?'#fff':'var(--txt3)'}">✓ Yes</button>
+          <button class="rpt-btn" id="rptN" onclick="setReport('${c.id}',false)"
+            style="background:${c.report===false?'var(--red)':'var(--gray5)'};color:${c.report===false?'#fff':'var(--txt3)'}">✗ No</button>
+          <button class="rpt-btn" id="rptX" onclick="setReport('${c.id}',null)"
+            style="background:${c.report===null?'var(--gray)':'var(--gray5)'};color:${c.report===null?'#fff':'var(--txt3)'}">— Not set</button>
+        </div>
+      </div>
+      <!-- Writer selector shown only when report=true -->
+      <div id="writerSection" style="${c.report===true?'':'display:none'}">
+        <div style="height:.5px;background:var(--sep)"></div>
+        <div style="padding:14px 16px">
+          <div style="font-size:13px;color:var(--txt3);margin-bottom:10px;font-weight:500;text-transform:uppercase;letter-spacing:.3px">Who is writing the report?</div>
+          <select class="fi" id="writerSel" onchange="handleWriterChange('${c.id}')">
+            <option value="">— Select person —</option>
+            ${users.map(u=>`<option value="${u.id}"${c.reportWriter===u.id?' selected':''}>${esc(u.name)} (${esc(u.role)})</option>`).join('')}
+            <option value="__other__"${c.reportWriter==='__other__'?' selected':''}>Other (type name)</option>
+          </select>
+          <div id="writerOtherWrap" style="${c.reportWriter==='__other__'?'':'display:none'};margin-top:10px">
+            <input class="fi" id="writerOtherName" placeholder="Enter person's name" value="${esc(c.reportWriterName||'')}" oninput="saveWriterOther('${c.id}',this.value)"/>
+          </div>
         </div>
       </div>
     </div>
 
     <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Assign To</div>
-    <div class="inline-card" style="margin-bottom:16px">
+    <div class="ic" style="margin-bottom:16px">
       <div class="row-nd">
         <div class="rb" style="font-size:15px">Assigned User</div>
         <select class="fi" style="width:auto;font-size:15px;margin-left:8px" onchange="reassign('${c.id}',this.value)">
@@ -902,31 +1041,54 @@ function tgl(cId,field){
   refresh();
   toast(c[field]?(field==='round'?'✓ Rounded':'✓ Adm. Note done'):(field==='round'?'Round cleared':'Adm. Note cleared'));
 }
+
 function setReport(cId,val){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.report=val;save();refresh();
-  // Update button styles inline
-  const yb=document.getElementById('rptYes'),nb=document.getElementById('rptNo'),xb=document.getElementById('rptNone');
+  c.report=val;
+  if(val!==true){c.reportWriter=null;c.reportWriterName='';}
+  save();refresh();
+  // update toggle buttons
+  const yb=document.getElementById('rptY'),nb=document.getElementById('rptN'),xb=document.getElementById('rptX');
   if(yb){yb.style.background=val===true?'var(--green)':'var(--gray5)';yb.style.color=val===true?'#fff':'var(--txt3)';}
   if(nb){nb.style.background=val===false?'var(--red)':'var(--gray5)';nb.style.color=val===false?'#fff':'var(--txt3)';}
   if(xb){xb.style.background=val===null?'var(--gray)':'var(--gray5)';xb.style.color=val===null?'#fff':'var(--txt3)';}
+  // show/hide writer section
+  const ws=document.getElementById('writerSection');
+  if(ws)ws.style.display=val===true?'':'none';
   toast(val===true?'📝 Will write report':val===false?'✗ No report':'Report decision cleared');
 }
+
+function handleWriterChange(cId){
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  const sel=document.getElementById('writerSel');
+  if(!sel)return;
+  c.reportWriter=sel.value||null;
+  if(c.reportWriter!=='__other__')c.reportWriterName='';
+  save();refresh();
+  const wrap=document.getElementById('writerOtherWrap');
+  if(wrap)wrap.style.display=c.reportWriter==='__other__'?'':'none';
+}
+
+function saveWriterOther(cId,val){
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  c.reportWriterName=val;save();refresh();
+}
+
 function reassign(cId,uId){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.uid=uId;save();refresh();const u=gU(uId);toast(`Assigned to ${u?u.name:'user'}`);
+  c.uid=uId;save();refresh();toast('Assigned to '+(gU(uId)?.name||'user'));
 }
 function discharge(cId){
-  if(!confirm('Discharge this patient? They will be removed from active cases.'))return;
+  if(!confirm('Discharge this patient?'))return;
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
   c.out=true;save();close_('sCaseDetail');refresh();toast('Patient discharged');
 }
 function openEditFromDetail(){close_('sCaseDetail');openAddCase(false,editId);}
-function refresh(){if(curTab===1)renderAll();if(curTab===2)renderMy();if(curTab===3)renderStats();}
+function refresh(){if(curTab===0)renderAll();if(curTab===1)renderMy();if(curTab===2)renderStats();}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // ADD / EDIT CASE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function openAddCase(forMy=false,eId=null){
   editId=eId;
   const c=eId?DB.cases.find(x=>x.id===eId):null;
@@ -935,9 +1097,9 @@ function openAddCase(forMy=false,eId=null){
   const defGid=c?c.gId:(DB.sel.gId||groups[0]?.id||'');
   const users=gUbyG(defGid);
   document.getElementById('addCaseBody').innerHTML=`
-    ${!eId?`<div style="background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+    ${!eId?`<div class="ic" style="padding:14px 16px;margin-bottom:16px">
       <div class="ai-pill">✨ AI Scan</div>
-      <div style="font-size:13px;color:var(--txt3);margin:6px 0 10px">Photograph patient wristband or card to auto-fill HN &amp; Name</div>
+      <div style="font-size:13px;color:var(--txt3);margin:6px 0 10px">Photograph wristband/card to auto-fill HN &amp; Name</div>
       <button class="btn bs" style="padding:11px" onclick="document.getElementById('cameraInput').click()">📷 Scan Patient Info</button>
     </div>`:''}
     <div class="fg"><div class="fl">HN *</div><input class="fi" id="fHN" placeholder="e.g. HN001234" value="${esc(c?.hn||'')}"/></div>
@@ -955,9 +1117,10 @@ function openAddCase(forMy=false,eId=null){
       </select>
     </div>
     <div class="fg"><div class="fl">Admission Note</div>
-      <div class="inline-card">
-        <div class="ck-row"><div class="ck${c?.admNote?' on':''}" id="fAdmNote" onclick="this.classList.toggle('on')"></div><div class="ck-lbl">Admission Note Done</div></div>
-      </div>
+      <div class="ic"><div class="ck-row">
+        <div class="ck${c?.admNote?' on':''}" id="fAdmNote" onclick="this.classList.toggle('on')"></div>
+        <div class="ck-lbl">Admission Note Done</div>
+      </div></div>
     </div>
     ${eId?`<button class="btn br" style="margin-top:4px" onclick="delCase('${eId}')">Delete Case</button>`:''}
     <div style="height:16px"></div>
@@ -965,9 +1128,8 @@ function openAddCase(forMy=false,eId=null){
   open_('sAddCase');
 }
 function refreshCaseUsers(){
-  const gId=document.getElementById('fGroup').value;
   const el=document.getElementById('fUser');
-  if(el)el.innerHTML=gUbyG(gId).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  if(el)el.innerHTML=gUbyG(document.getElementById('fGroup').value).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
 }
 function submitCase(){
   const hn=document.getElementById('fHN').value.trim();
@@ -977,13 +1139,13 @@ function submitCase(){
   const gId=document.getElementById('fGroup').value;
   const uId=document.getElementById('fUser').value;
   const admNote=document.getElementById('fAdmNote').classList.contains('on');
-  if(!hn||!name||!dx||!admit){toast('Please fill all required fields (*)');return;}
+  if(!hn||!name||!dx||!admit){toast('Fill all required fields (*)');return;}
   if(editId){
     const c=DB.cases.find(x=>x.id===editId);
     if(c){c.hn=hn;c.name=name;c.dx=dx;c.admit=admit;c.gId=gId;c.uid=uId;c.admNote=admNote;}
     toast('Case updated ✓');
   }else{
-    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:null,round:false,admNote,out:false});
+    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:null,reportWriter:null,reportWriterName:'',round:false,admNote,out:false});
     toast('Case added ✓');
   }
   save();close_('sAddCase');refresh();
@@ -994,9 +1156,9 @@ function delCase(id){
   save();close_('sAddCase');refresh();toast('Case deleted');
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // AI SCAN
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 async function onCapture(e){
   const file=e.target.files[0];if(!file)return;
   e.target.value='';close_('sAddCase');toast('🔍 Scanning with AI…');
@@ -1009,13 +1171,12 @@ async function onCapture(e){
         body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
           messages:[{role:'user',content:[
             {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
-            {type:'text',text:'Extract patient info from this medical label/wristband. Return ONLY a JSON object with keys "hn" (hospital number/ID) and "name" (full patient name). Empty string if not found. No markdown.'}
+            {type:'text',text:'Extract patient info from this medical wristband/label. Return ONLY a JSON object with keys "hn" and "name". Empty string if not found. No markdown.'}
           ]}]})
       });
       const data=await res.json();
       let txt=data.content?.[0]?.text||'{}';
-      let parsed={};
-      try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{}
+      let parsed={};try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{}
       scanD=parsed;showScanConfirm(parsed);
     }catch(err){toast('Scan failed — enter manually');openAddCase(false);}
   };
@@ -1024,7 +1185,7 @@ async function onCapture(e){
 function showScanConfirm(d){
   document.getElementById('scanBody').innerHTML=`
     <div class="ai-pill">✨ AI Extracted</div>
-    <p style="font-size:13px;color:var(--txt3);margin:8px 0 16px">Confirm and edit, then tap Use to continue.</p>
+    <p style="font-size:13px;color:var(--txt3);margin:8px 0 16px">Confirm and edit before proceeding.</p>
     <div class="fg"><div class="fl">HN</div><input class="fi" id="scHN" value="${esc(d.hn||'')}" placeholder="Hospital Number"/></div>
     <div class="fg"><div class="fl">Patient Name</div><input class="fi" id="scName" value="${esc(d.name||'')}" placeholder="Full Name"/></div>
   `;
@@ -1040,9 +1201,9 @@ function useScan(){
   },120);
 }
 
-// ═══════════════════════════════════════════════════════════
-// PAGE 3: STATS
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// PAGE 2: STATS
+// ═══════════════════════════════════════════════════════════════
 function renderStats(){
   const el=document.getElementById('statsBody');
   if(!DB.sel.wId){el.innerHTML=emptySetup();return;}
@@ -1051,111 +1212,132 @@ function renderStats(){
   wGs.forEach(g=>{
     const cases=gCbyG(g.id);
     const users=gUbyG(g.id);
-    const rptYes=cases.filter(c=>c.report===true).length;
-    const rptNo=cases.filter(c=>c.report===false).length;
     const rnd=cases.filter(c=>c.round).length;
+    // Total report writers across all cases in group (count unique writer entries)
+    const rptYesCases=cases.filter(c=>c.report===true);
+    const rptNoCases=cases.filter(c=>c.report===false);
+
     html+=`<div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:20px 32px 8px">${esc(g.name)}</div>
-    <div class="sg">
+    <div class="sg" style="margin-bottom:12px">
       <div class="sc"><div class="sn">${cases.length}</div><div class="sl">Active Cases</div></div>
       <div class="sc"><div class="sn">${rnd}</div><div class="sl">Rounded Today</div></div>
-      <div class="sc"><div class="sn" style="color:var(--green)">${rptYes}</div><div class="sl">Writing Report</div></div>
-      <div class="sc"><div class="sn" style="color:var(--red)">${rptNo}</div><div class="sl">No Report</div></div>
-    </div>
-    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:14px 32px 8px">Per Member</div>
-    <div class="card" style="margin-bottom:8px">
-      ${users.length?users.map(u=>{
+      <div class="sc"><div class="sn" style="color:var(--green)">${rptYesCases.length}</div><div class="sl">Writing Report</div></div>
+      <div class="sc"><div class="sn" style="color:var(--red)">${rptNoCases.length}</div><div class="sl">No Report</div></div>
+    </div>`;
+
+    // Per-member stats — show for each user: cases, + their report decisions
+    html+=`<div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:0 32px 8px">Per Member</div>
+    <div class="card" style="margin-bottom:8px">`;
+    if(users.length){
+      users.forEach(u=>{
         const uc=cases.filter(c=>c.uid===u.id);
-        const ur=uc.filter(c=>c.report===true).length;
-        const un=uc.filter(c=>c.report===false).length;
-        return`<div class="row-nd">
-          <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
-          <div class="rb"><div style="font-size:16px;font-weight:600">${esc(u.name)}</div><div style="font-size:13px;color:var(--txt3);margin-top:1px">${esc(u.role)}</div></div>
-          <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:24px;font-weight:700;color:var(--blue)">${uc.length}</div>
-            <div style="font-size:11px;color:var(--txt3)">cases</div>
-            <div style="display:flex;gap:4px;margin-top:3px;justify-content:flex-end">
-              ${ur?`<span style="background:rgba(52,199,89,.15);color:var(--green);padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600">${ur} rpt</span>`:''}
-              ${un?`<span style="background:rgba(255,59,48,.12);color:var(--red);padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600">${un} no</span>`:''}
+        // Cases where THIS user is assigned AND selected report=true
+        const uRptYes=uc.filter(c=>c.report===true);
+        const uRptNo=uc.filter(c=>c.report===false);
+        // Also count cases in the group where this user is the WRITER (reportWriter===u.id)
+        const writingFor=cases.filter(c=>c.reportWriter===u.id);
+
+        html+=`<div class="row-nd" style="flex-wrap:wrap;align-items:flex-start;padding:14px 16px">
+          <div style="display:flex;align-items:center;width:100%;margin-bottom:${writingFor.length||uRptYes.length?'10px':'0'}">
+            <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+            <div style="flex:1"><div style="font-size:16px;font-weight:600">${esc(u.name)}</div><div style="font-size:13px;color:var(--txt3);margin-top:1px">${esc(u.role)}</div></div>
+            <div style="text-align:right">
+              <div style="font-size:24px;font-weight:700;color:var(--blue)">${uc.length}</div>
+              <div style="font-size:11px;color:var(--txt3)">cases</div>
             </div>
           </div>
+          ${uRptYes.length||uRptNo.length||writingFor.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding-left:50px;width:100%">
+            ${uRptYes.length?`<span style="background:rgba(52,199,89,.15);color:var(--green);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">📝 Writing ${uRptYes.length} report${uRptYes.length>1?'s':''}</span>`:''}
+            ${uRptNo.length?`<span style="background:rgba(255,59,48,.12);color:var(--red);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">✗ No report (${uRptNo.length})</span>`:''}
+            ${writingFor.length?`<span style="background:rgba(175,82,222,.12);color:var(--purple);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">✍️ Writer for ${writingFor.length} case${writingFor.length>1?'s':''}</span>`:''}
+          </div>`:''}
         </div>`;
-      }).join(''):'<div class="row-nd" style="color:var(--txt3);font-size:15px">No users in this group</div>'}
-    </div>`;
+      });
+      // Also show "other" writers
+      const otherWriters=cases.filter(c=>c.reportWriter==='__other__'&&c.reportWriterName);
+      if(otherWriters.length){
+        // group by name
+        const names={};otherWriters.forEach(c=>{const n=c.reportWriterName||'Other';names[n]=(names[n]||0)+1;});
+        Object.entries(names).forEach(([n,cnt])=>{
+          html+=`<div class="row-nd">
+            <div class="av" style="background:var(--gray);margin-right:12px">${esc(ini(n))}</div>
+            <div style="flex:1"><div style="font-size:16px;font-weight:600">${esc(n)}</div><div style="font-size:13px;color:var(--txt3)">External</div></div>
+            <span style="background:rgba(175,82,222,.12);color:var(--purple);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">✍️ Writer for ${cnt}</span>
+          </div>`;
+        });
+      }
+    }else{
+      html+='<div class="row-nd" style="color:var(--txt3);font-size:15px">No users in this group</div>';
+    }
+    html+=`</div>`;
   });
   el.innerHTML=html;
 }
 
-// ═══════════════════════════════════════════════════════════
-// CLOSE ON BACKDROP TAP
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// BACKDROP CLOSE
+// ═══════════════════════════════════════════════════════════════
 document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hide');});});
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 async function init(){
   loadDB();
-  // Try loading from Sheets (public CSV, no auth needed for public sheets)
   await loadFromSheets();
   renderLoginWall();
-  renderSetup();
+  // Restore setup section visibility
   if(DB.sel.wId)document.getElementById('grpSec').classList.remove('hidden');
   if(DB.sel.gId)document.getElementById('usrSec').classList.remove('hidden');
-  // If user already logged in, skip login wall
+  // Show login wall if no user selected, else go straight to all cases
   if(DB.sel.uId){
     document.getElementById('loginWall').classList.add('hide');
-    updateNav();
+    updateNav();renderAll();
   }
 }
 init();
 </script>
 
 <!--
-════════════════════════════════════════════════════════════
-  GOOGLE SHEETS SETUP GUIDE
-════════════════════════════════════════════════════════════
+══════════════════════════════════════════════════════════
+  GOOGLE SHEETS SETUP
+══════════════════════════════════════════════════════════
+Sheet ID: 1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM
 
-1. Open your Google Sheet:
-   https://docs.google.com/spreadsheets/d/1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM/
+1. Create 4 tabs in the sheet named EXACTLY:
+   Wards   → columns: id, name
+   Groups  → columns: id, wId, name
+   Users   → columns: id, gId, name, role
+   Cases   → columns: id, gId, hn, name, dx, admit, uid,
+             report, reportWriter, reportWriterName,
+             round, admNote, out
 
-2. Create 4 tabs named EXACTLY:
-   • Wards   → columns: id, name
-   • Groups  → columns: id, wId, name
-   • Users   → columns: id, gId, name, role
-   • Cases   → columns: id, gId, hn, name, dx, admit, uid, report, round, admNote, out
+2. Share sheet as "Anyone with link → Viewer"
+   (enables CSV read without API key)
 
-3. Make the sheet PUBLIC (Share → Anyone with link → Viewer)
-   This allows the CSV export to work without an API key.
+3. For WRITE-BACK deploy an Apps Script:
+   Extensions → Apps Script → paste below → Deploy as Web App
+   Set APPS_SCRIPT_URL constant at top of this file.
 
-4. The app reads from Sheets on load automatically.
-   For WRITE back to Sheets, deploy an Apps Script:
-   a. Extensions → Apps Script
-   b. Paste the doPost() handler below
-   c. Deploy → New deployment → Web App → Execute as Me → Anyone
-   d. Copy the URL and set APPS_SCRIPT_URL at the top of this file
+   function doPost(e) {
+     const db = JSON.parse(e.postData.contents);
+     const ss = SpreadsheetApp.getActiveSpreadsheet();
+     write(ss,'Wards',  db.wards,  ['id','name']);
+     write(ss,'Groups', db.groups, ['id','wId','name']);
+     write(ss,'Users',  db.users,  ['id','gId','name','role']);
+     write(ss,'Cases',  db.cases,  ['id','gId','hn','name','dx','admit','uid',
+       'report','reportWriter','reportWriterName','round','admNote','out']);
+     return ContentService.createTextOutput('ok');
+   }
+   function write(ss,name,data,cols){
+     const sh=ss.getSheetByName(name);
+     sh.clearContents();sh.appendRow(cols);
+     data.forEach(r=>sh.appendRow(cols.map(c=>r[c]!==undefined?r[c]:'')));
+   }
 
-   // Apps Script doPost handler:
-   // function doPost(e) {
-   //   const db = JSON.parse(e.postData.contents);
-   //   const ss = SpreadsheetApp.getActiveSpreadsheet();
-   //   writeSheet(ss, 'Wards',  db.wards,  ['id','name']);
-   //   writeSheet(ss, 'Groups', db.groups, ['id','wId','name']);
-   //   writeSheet(ss, 'Users',  db.users,  ['id','gId','name','role']);
-   //   writeSheet(ss, 'Cases',  db.cases,  ['id','gId','hn','name','dx','admit','uid','report','round','admNote','out']);
-   //   return ContentService.createTextOutput('ok');
-   // }
-   // function writeSheet(ss, name, data, cols) {
-   //   const sh = ss.getSheetByName(name);
-   //   sh.clearContents();
-   //   sh.appendRow(cols);
-   //   data.forEach(r => sh.appendRow(cols.map(c => r[c] !== undefined ? r[c] : '')));
-   // }
-
-5. GitHub Pages hosting:
-   - Save this file as index.html
-   - Push to GitHub repo
-   - Settings → Pages → Deploy from main branch
-════════════════════════════════════════════════════════════
+4. GitHub Pages: save as index.html, push to repo,
+   enable Pages under Settings → Pages.
+══════════════════════════════════════════════════════════
 -->
 </body>
 </html>
