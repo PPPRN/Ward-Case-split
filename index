@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WardSync — Case Management</title>
+<style>
+  :root {
+    --ios-blue: #007AFF;
+    --ios-blue-dark: #0056CC;
+    --ios-green: #34C759;
+    --ios-red: #FF3B30;
+    --ios-orange: #FF9500;
+    --ios-yellow: #FFCC00;
+    --ios-purple: #AF52DE;
+    --ios-gray: #8E8E93;
+    --ios-gray2: #AEAEB2;
+    --ios-gray3: #C7C7CC;
+    --ios-gray4: #D1D1D6;
+    --ios-gray5: #E5E5EA;
+    --ios-gray6: #F2F2F7;
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --text: #000000;
+    --text2: #3C3C43;
+    --text3: #6C6C70;
+    --sep: rgba(60,60,67,0.12);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --nav-h: 56px;
+    --tab-h: 83px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1C1C1E; --card: #2C2C2E; --text: #FFFFFF;
+      --text2: #EBEBF5; --text3: rgba(235,235,245,0.6);
+      --sep: rgba(84,84,88,0.6);
+      --ios-gray6: #1C1C1E; --ios-gray5: #2C2C2E;
+      --ios-gray4: #3A3A3C; --ios-gray3: #48484A;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); }
+  #app { display: flex; flex-direction: column; height: 100%; height: -webkit-fill-available; }
+
+  /* NAV */
+  .nav-bar { background: rgba(255,255,255,0.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 0.5px solid var(--sep); padding-top: var(--safe-top); flex-shrink: 0; z-index: 100; }
+  @media (prefers-color-scheme: dark) { .nav-bar { background: rgba(28,28,30,0.88); } }
+  .nav-inner { height: var(--nav-h); display: flex; align-items: center; padding: 0 16px; }
+  .nav-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; flex: 1; text-align: center; }
+  .nav-side { min-width: 88px; display: flex; align-items: center; }
+  .nav-side.right { justify-content: flex-end; }
+  .nav-btn { background: none; border: none; color: var(--ios-blue); font-size: 17px; padding: 6px 0; font-family: inherit; cursor: pointer; }
+  .nav-btn:active { opacity: 0.5; }
+  .nav-sub { font-size: 11px; color: var(--text3); text-align: center; padding: 0 16px 8px; }
+
+  /* CONTENT */
+  .page { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .page.active { display: flex; }
+  .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
+
+  /* SECTION */
+  .sh { font-size: 13px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; padding: 20px 32px 8px; }
+  .card { background: var(--card); border-radius: 12px; overflow: hidden; margin: 0 16px; }
+  .row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--sep); min-height: 44px; cursor: pointer; }
+  .row:last-child { border-bottom: none; }
+  .row:active { background: var(--ios-gray5); }
+  .row-body { flex: 1; }
+  .row-title { font-size: 17px; }
+  .row-sub { font-size: 14px; color: var(--text3); margin-top: 2px; }
+  .chev { color: var(--ios-gray3); font-size: 18px; margin-left: 8px; flex-shrink: 0; }
+
+  /* TAB BAR */
+  .tab-bar { background: rgba(255,255,255,0.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 0.5px solid var(--sep); padding-bottom: var(--safe-bottom); display: flex; flex-shrink: 0; z-index: 100; }
+  @media (prefers-color-scheme: dark) { .tab-bar { background: rgba(28,28,30,0.88); } }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px 4px; cursor: pointer; min-height: var(--tab-h); border: none; background: none; font-family: inherit; color: var(--ios-gray2); }
+  .tab.active { color: var(--ios-blue); }
+  .tab:active { opacity: 0.7; }
+  .tab-icon { font-size: 22px; margin-bottom: 4px; }
+  .tab-lbl { font-size: 10px; font-weight: 500; }
+
+  /* SETUP HERO */
+  .hero { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); padding: calc(var(--safe-top) + 20px) 24px 28px; color: white; text-align: center; }
+  .hero h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .hero p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .b-blue { background: rgba(0,122,255,.12); color: var(--ios-blue); }
+  .b-green { background: rgba(52,199,89,.15); color: var(--ios-green); }
+  .b-orange { background: rgba(255,149,0,.15); color: var(--ios-orange); }
+  .b-red { background: rgba(255,59,48,.12); color: var(--ios-red); }
+  .b-gray { background: var(--ios-gray5); color: var(--ios-gray); }
+  .b-purple { background: rgba(175,82,222,.12); color: var(--ios-purple); }
+
+  /* CASE CARD */
+  .case-card { background: var(--card); border-radius: 14px; margin: 0 16px 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); cursor: pointer; transition: transform .15s; }
+  .case-card:active { transform: scale(0.975); }
+  .cc-head { padding: 13px 16px 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .cc-body { flex: 1; }
+  .cc-hn { font-size: 12px; font-weight: 600; color: var(--ios-blue); }
+  .cc-name { font-size: 17px; font-weight: 600; margin-top: 1px; }
+  .cc-diag { font-size: 14px; color: var(--text3); margin-top: 2px; }
+  .cc-day { font-size: 12px; color: var(--ios-orange); font-weight: 500; text-align: right; white-space: nowrap; }
+  .cc-foot { padding: 8px 16px 11px; border-top: 0.5px solid var(--sep); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+  /* AVATAR */
+  .av { width: 36px; height: 36px; border-radius: 50%; background: var(--ios-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+
+  /* IOS CHECK */
+  .ck { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ios-gray3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all .2s; }
+  .ck.on { background: var(--ios-blue); border-color: var(--ios-blue); color: white; font-size: 14px; font-weight: 700; }
+  .ck.on::after { content: '✓'; }
+  .ck-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 0.5px solid var(--sep); min-height: 48px; }
+  .ck-row:last-child { border-bottom: none; }
+  .ck-lbl { font-size: 17px; flex: 1; }
+  .ck-note { font-size: 12px; color: var(--text3); }
+
+  /* SEGMENT */
+  .seg { display: flex; background: var(--ios-gray5); border-radius: 9px; padding: 2px; margin: 12px 16px; }
+  .seg-btn { flex: 1; padding: 7px 8px; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; font-family: inherit; color: var(--text3); background: transparent; cursor: pointer; transition: all .2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seg-btn.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  /* FAB */
+  .fab { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--ios-blue); color: white; font-size: 26px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,122,255,.45); z-index: 50; transition: transform .15s; font-family: inherit; }
+  .fab:active { transform: scale(0.9); }
+
+  /* SHEET */
+  .overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.4); display: flex; flex-direction: column; justify-content: flex-end; animation: fadeIn .25s; }
+  .overlay.hide { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .sheet { background: var(--bg); border-radius: 16px 16px 0 0; max-height: 92vh; display: flex; flex-direction: column; animation: slideUp .33s cubic-bezier(0.32,0.72,0,1); padding-bottom: var(--safe-bottom); }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sh-handle { width: 36px; height: 5px; background: var(--ios-gray3); border-radius: 3px; margin: 10px auto 4px; flex-shrink: 0; }
+  .sh-head { padding: 8px 16px 10px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .sh-title { font-size: 17px; font-weight: 600; }
+  .sh-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px 20px; }
+
+  /* FORM */
+  .fg { margin-bottom: 14px; }
+  .fl { font-size: 13px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; padding-left: 4px; }
+  .fi { width: 100%; padding: 12px 16px; font-size: 17px; font-family: inherit; background: var(--card); border: 1.5px solid transparent; border-radius: 12px; color: var(--text); outline: none; -webkit-appearance: none; appearance: none; transition: border-color .2s; }
+  .fi:focus { border-color: var(--ios-blue); }
+  .fi::placeholder { color: var(--ios-gray3); }
+  select.fi { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%238E8E93'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  /* BTNS */
+  .btn { width: 100%; padding: 14px 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s; }
+  .btn:active { opacity: 0.7; }
+  .btn-p { background: var(--ios-blue); color: white; }
+  .btn-s { background: var(--ios-gray5); color: var(--ios-blue); }
+  .btn-r { background: rgba(255,59,48,.12); color: var(--ios-red); }
+  .btn-g { background: rgba(52,199,89,.15); color: var(--ios-green); }
+  .btn + .btn { margin-top: 10px; }
+
+  /* STATS */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+  .stat-card { background: var(--card); border-radius: 14px; padding: 16px; }
+  .stat-n { font-size: 34px; font-weight: 700; letter-spacing: -1px; color: var(--ios-blue); line-height: 1; }
+  .stat-l { font-size: 13px; color: var(--text3); margin-top: 5px; line-height: 1.3; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px 32px; color: var(--text3); }
+  .empty-i { font-size: 52px; margin-bottom: 14px; }
+  .empty-t { font-size: 17px; font-weight: 600; color: var(--text2); }
+  .empty-s { font-size: 15px; margin-top: 6px; }
+
+  /* AI */
+  .ai-pill { display: inline-block; background: linear-gradient(90deg,#007AFF,#AF52DE); color: white; padding: 3px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 76px); left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; background: rgba(0,0,0,.78); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 9999; white-space: nowrap; max-width: 90vw; text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LANDSCAPE */
+  @media (orientation:landscape) and (max-height:500px) {
+    :root { --nav-h:44px; --tab-h:50px; }
+    .hero { padding: 12px 24px 16px; }
+    .hero h1 { font-size: 20px; }
+    .stat-grid { grid-template-columns: repeat(4,1fr); }
+    .sh-body { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+    .sh-body .btn + .btn { margin-top: 0; }
+  }
+
+  .hidden { display: none !important; }
+  #cameraInput { display: none; }
+  .divider { height: 0.5px; background: var(--sep); margin: 0 16px; }
+  .inline-check-wrap { background: var(--card); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- NAV BAR -->
+  <div class="nav-bar" id="navBar">
+    <div class="nav-inner">
+      <div class="nav-side" id="navL"></div>
+      <div class="nav-title" id="navT">WardSync</div>
+      <div class="nav-side right" id="navR"></div>
+    </div>
+    <div id="navSub" class="nav-sub hidden"></div>
+  </div>
+
+  <!-- PAGE: SETUP -->
+  <div id="p0" class="page active">
+    <div class="scroll" id="s0">
+      <div class="hero">
+        <div style="font-size:44px;margin-bottom:10px">🏥</div>
+        <h1>WardSync</h1>
+        <p>Patient Case Management System</p>
+      </div>
+
+      <div class="sh">Select Ward</div>
+      <div class="card" id="wardList"></div>
+
+      <div id="grpSec" class="hidden">
+        <div class="sh">Select Group</div>
+        <div class="card" id="groupList"></div>
+      </div>
+
+      <div id="usrSec" class="hidden">
+        <div class="sh">Select Your Profile</div>
+        <div class="card" id="userList"></div>
+        <div style="margin:12px 16px 0">
+          <button class="btn btn-s" onclick="openAddUser()">＋ Add New User</button>
+        </div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: ALL CASES -->
+  <div id="p1" class="page">
+    <div class="scroll" id="s1">
+      <div style="height:8px"></div>
+      <div class="seg" id="grpSeg"></div>
+      <div id="allList"></div>
+      <div style="height:16px"></div>
+    </div>
+    <button class="fab" onclick="openAddCase(false)">＋</button>
+  </div>
+
+  <!-- PAGE: MY CASES -->
+  <div id="p2" class="page">
+    <div class="scroll" id="s2">
+      <div style="height:12px"></div>
+      <div id="myList"></div>
+      <div style="height:16px"></div>
+    </div>
+    <button class="fab" onclick="openAddCase(true)">＋</button>
+  </div>
+
+  <!-- PAGE: STATS -->
+  <div id="p3" class="page">
+    <div class="scroll" id="s3">
+      <div style="height:8px"></div>
+      <div id="statsBody"></div>
+      <div style="height:24px"></div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab active" id="t0" onclick="goTab(0)"><div class="tab-icon">⚙️</div><div class="tab-lbl">Setup</div></button>
+    <button class="tab" id="t1" onclick="goTab(1)"><div class="tab-icon">🏥</div><div class="tab-lbl">All Cases</div></button>
+    <button class="tab" id="t2" onclick="goTab(2)"><div class="tab-icon">👤</div><div class="tab-lbl">My Cases</div></button>
+    <button class="tab" id="t3" onclick="goTab(3)"><div class="tab-icon">📊</div><div class="tab-lbl">Stats</div></button>
+  </div>
+</div>
+
+<!-- SHEET: CASE DETAIL -->
+<div class="overlay hide" id="sCaseDetail">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sCaseDetail')">Close</button>
+      <div class="sh-title" id="detTitle">Detail</div>
+      <button class="nav-btn" id="detEditBtn" onclick="openEditFromDetail()">Edit</button>
+    </div>
+    <div class="sh-body" id="detBody"></div>
+  </div>
+</div>
+
+<!-- SHEET: ADD/EDIT CASE -->
+<div class="overlay hide" id="sAddCase">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sAddCase')">Cancel</button>
+      <div class="sh-title" id="addCaseTitle">New Case</div>
+      <button class="nav-btn" onclick="submitCase()">Save</button>
+    </div>
+    <div class="sh-body" id="addCaseBody"></div>
+  </div>
+</div>
+
+<!-- SHEET: ADD USER -->
+<div class="overlay hide" id="sAddUser">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sAddUser')">Cancel</button>
+      <div class="sh-title">Add User</div>
+      <button class="nav-btn" onclick="submitUser()">Save</button>
+    </div>
+    <div class="sh-body">
+      <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
+      <div class="fg"><div class="fl">Role</div>
+        <select class="fi" id="uRole">
+          <option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Group</div><div id="uGroupWrap"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET: SCAN CONFIRM -->
+<div class="overlay hide" id="sScan">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sScan');openAddCase(false)">Back</button>
+      <div class="sh-title">Confirm Scan Data</div>
+      <button class="nav-btn" onclick="useScan()">Use</button>
+    </div>
+    <div class="sh-body" id="scanBody"></div>
+  </div>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="onCapture(event)">
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// GOOGLE SHEETS CONFIG — replace these with your actual values
+// ============================================================
+const GS_ID  = 'YOUR_SPREADSHEET_ID';   // e.g. '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms'
+const GS_KEY = 'YOUR_API_KEY';           // Google Cloud API key with Sheets scope
+// Set USE_GS = true after configuring above
+const USE_GS = false;
+
+// ============================================================
+// DATABASE — localStorage with optional Google Sheets sync
+// ============================================================
+let DB = { wards:[], groups:[], users:[], cases:[], lastReset:'', sel:{wardId:'',groupId:'',userId:''} };
+
+function loadDB() {
+  try { const s = localStorage.getItem('ws_db'); if (s) DB = JSON.parse(s); } catch(e){}
+  if (!DB.wards || !DB.wards.length) seed();
+  dailyReset();
+}
+function save() {
+  localStorage.setItem('ws_db', JSON.stringify(DB));
+  if (USE_GS) pushToSheets();
+}
+function seed() {
+  DB = {
+    wards: [{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'},{id:'w3',name:'ICU'}],
+    groups:[{id:'g1',wId:'w1',name:'Team A'},{id:'g2',wId:'w1',name:'Team B'},{id:'g3',wId:'w2',name:'Surgical I'},{id:'g4',wId:'w3',name:'ICU Team'}],
+    users:[
+      {id:'u1',gId:'g1',name:'Dr. Somchai K.',role:'Doctor'},
+      {id:'u2',gId:'g1',name:'Nurse Malee P.',role:'Nurse'},
+      {id:'u3',gId:'g1',name:'Dr. Wanida S.',role:'Resident'},
+      {id:'u4',gId:'g2',name:'Dr. Prasit T.',role:'Doctor'},
+      {id:'u5',gId:'g2',name:'Nurse Darunee N.',role:'Nurse'}
+    ],
+    cases:[
+      {id:'c1',gId:'g1',hn:'HN001234',name:'Somjai Rakdee',dx:'T2DM with Hyperglycemia',admit:'2025-04-28',uid:'u1',report:'',round:false,admNote:false,out:false},
+      {id:'c2',gId:'g1',hn:'HN001235',name:'Pranee Srisuk',dx:'Hypertensive Crisis',admit:'2025-05-01',uid:'u2',report:'',round:true,admNote:true,out:false},
+      {id:'c3',gId:'g2',hn:'HN001236',name:'Boonma Intawong',dx:'Community-Acquired Pneumonia',admit:'2025-05-03',uid:'u4',report:'Progress Note',round:false,admNote:false,out:false}
+    ],
+    lastReset: new Date().toDateString(),
+    sel:{wardId:'',groupId:'',userId:''}
+  };
+  save();
+}
+function dailyReset() {
+  const td = new Date().toDateString();
+  if (DB.lastReset !== td) { DB.cases.forEach(c=>{if(!c.out)c.round=false;}); DB.lastReset=td; save(); }
+}
+
+// Google Sheets push (placeholder)
+async function pushToSheets() {
+  // Implement with Google Sheets API v4 batchUpdate
+  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
+  console.log('[GS] push pending');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+const uid = () => '_'+Math.random().toString(36).substr(2,9);
+const gW = id => DB.wards.find(x=>x.id===id);
+const gG = id => DB.groups.find(x=>x.id===id);
+const gU = id => DB.users.find(x=>x.id===id);
+const gGbyW = wId => DB.groups.filter(g=>g.wId===wId);
+const gUbyG = gId => DB.users.filter(u=>u.gId===gId);
+const gCbyG = gId => DB.cases.filter(c=>c.gId===gId&&!c.out);
+const gCbyU = uId => DB.cases.filter(c=>c.uid===uId&&!c.out);
+const days = d => { if(!d)return 0; return Math.floor((Date.now()-new Date(d))/86400000); };
+const ini = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+const esc = s => !s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function open_(id){document.getElementById(id).classList.remove('hide');}
+function close_(id){document.getElementById(id).classList.add('hide');}
+
+// ============================================================
+// TABS
+// ============================================================
+let curTab=0, curGrpFilter='', editId=null, isMy=false, scanD={};
+
+function goTab(i) {
+  [0,1,2,3].forEach(n=>{
+    document.getElementById('p'+n).classList.toggle('active',n===i);
+    document.getElementById('t'+n).classList.toggle('active',n===i);
+  });
+  curTab=i; updateNav();
+  if(i===1)renderAll();
+  if(i===2)renderMy();
+  if(i===3)renderStats();
+}
+function updateNav(){
+  const w=gW(DB.sel.wardId),g=gG(DB.sel.groupId),u=gU(DB.sel.userId);
+  const titles=['Setup','All Cases','My Cases','Statistics'];
+  document.getElementById('navT').textContent=titles[curTab];
+  const sub=document.getElementById('navSub');
+  if(w&&g&&u&&curTab>0){sub.textContent=`${w.name} · ${g.name} · ${u.name}`;sub.classList.remove('hidden');}
+  else sub.classList.add('hidden');
+}
+
+// ============================================================
+// PAGE 1: SETUP
+// ============================================================
+function renderSetup(){
+  // Wards
+  document.getElementById('wardList').innerHTML=DB.wards.map(w=>`
+    <div class="row" onclick="selWard('${w.id}')">
+      <div class="row-body"><div class="row-title">${esc(w.name)}</div><div class="row-sub">${gGbyW(w.id).length} groups</div></div>
+      ${DB.sel.wardId===w.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+    </div>`).join('');
+
+  if(DB.sel.wardId){
+    document.getElementById('grpSec').classList.remove('hidden');
+    document.getElementById('groupList').innerHTML=gGbyW(DB.sel.wardId).map(g=>`
+      <div class="row" onclick="selGroup('${g.id}')">
+        <div class="row-body"><div class="row-title">${esc(g.name)}</div><div class="row-sub">${gUbyG(g.id).length} users · ${gCbyG(g.id).length} active cases</div></div>
+        ${DB.sel.groupId===g.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+      </div>`).join('');
+  }
+
+  if(DB.sel.groupId){
+    document.getElementById('usrSec').classList.remove('hidden');
+    document.getElementById('userList').innerHTML=gUbyG(DB.sel.groupId).map(u=>`
+      <div class="row" onclick="selUser('${u.id}')">
+        <div class="av" style="margin-right:12px">${esc(ini(u.name))}</div>
+        <div class="row-body"><div class="row-title">${esc(u.name)}</div><div class="row-sub">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
+        ${DB.sel.userId===u.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+      </div>`).join('');
+  }
+}
+function selWard(id){DB.sel.wardId=id;DB.sel.groupId='';DB.sel.userId='';save();renderSetup();document.getElementById('grpSec').scrollIntoView({behavior:'smooth'});}
+function selGroup(id){DB.sel.groupId=id;DB.sel.userId='';curGrpFilter=id;save();renderSetup();document.getElementById('usrSec').scrollIntoView({behavior:'smooth'});}
+function selUser(id){DB.sel.userId=id;save();renderSetup();updateNav();toast('✓ Setup complete — you\'re all set!');}
+
+// ============================================================
+// ADD USER
+// ============================================================
+function openAddUser(){
+  const groups=DB.sel.wardId?gGbyW(DB.sel.wardId):DB.groups;
+  document.getElementById('uGroupWrap').innerHTML=`<select class="fi" id="uGroup">${groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>`;
+  if(DB.sel.groupId){const el=document.getElementById('uGroup');if(el)el.value=DB.sel.groupId;}
+  document.getElementById('uName').value='';
+  open_('sAddUser');
+}
+function submitUser(){
+  const name=document.getElementById('uName').value.trim();
+  const role=document.getElementById('uRole').value;
+  const gId=document.getElementById('uGroup').value;
+  if(!name){toast('Please enter a name');return;}
+  DB.users.push({id:uid(),gId,name,role});
+  save();close_('sAddUser');renderSetup();toast('User added ✓');
+}
+
+// ============================================================
+// RENDER CASE CARD
+// ============================================================
+function caseCard(c){
+  const u=gU(c.uid);
+  const d=days(c.admit);
+  const dayTxt=d===0?'Today':`Day ${d}`;
+  return `<div class="case-card" onclick="openDetail('${c.id}')">
+    <div class="cc-head">
+      <div class="cc-body">
+        <div class="cc-hn">${esc(c.hn)}</div>
+        <div class="cc-name">${esc(c.name)}</div>
+        <div class="cc-diag">${esc(c.dx)}</div>
+      </div>
+      <div class="cc-day">${dayTxt}</div>
+    </div>
+    <div class="cc-foot">
+      ${c.round?'<span class="badge b-green">✓ Rounded</span>':''}
+      ${c.admNote?'<span class="badge b-blue">📝 Adm. Note</span>':''}
+      ${c.report?`<span class="badge b-purple">📄 ${esc(c.report)}</span>`:''}
+      ${u?`<span class="badge b-gray" style="margin-left:auto">👤 ${esc(u.name)}</span>`:''}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// PAGE 2: ALL CASES
+// ============================================================
+function renderAll(){
+  if(!DB.sel.groupId){document.getElementById('allList').innerHTML=emptySetup();document.getElementById('grpSeg').innerHTML='';return;}
+  const wGroups=gGbyW(DB.sel.wardId);
+  if(!curGrpFilter||!gG(curGrpFilter))curGrpFilter=DB.sel.groupId;
+  document.getElementById('grpSeg').innerHTML=wGroups.map(g=>`<button class="seg-btn${curGrpFilter===g.id?' on':''}" onclick="setGF('${g.id}')">${esc(g.name)}</button>`).join('');
+  const cases=gCbyG(curGrpFilter);
+  document.getElementById('allList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Active Cases</div><div class="empty-s">Tap + to add a case</div></div>`;
+}
+function setGF(id){curGrpFilter=id;renderAll();}
+
+// ============================================================
+// PAGE 3: MY CASES
+// ============================================================
+function renderMy(){
+  if(!DB.sel.userId){document.getElementById('myList').innerHTML=emptySetup();return;}
+  const cases=gCbyU(DB.sel.userId);
+  document.getElementById('myList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Cases Assigned</div><div class="empty-s">Your assigned cases appear here</div></div>`;
+}
+function emptySetup(){return`<div class="empty"><div class="empty-i">⚙️</div><div class="empty-t">Setup Required</div><div class="empty-s">Configure ward, group & user in Setup tab</div></div>`;}
+
+// ============================================================
+// CASE DETAIL
+// ============================================================
+function openDetail(id){
+  const c=DB.cases.find(x=>x.id===id);if(!c)return;
+  editId=id;
+  document.getElementById('detTitle').textContent=c.hn;
+  const u=gU(c.uid), g=gG(c.gId), d=days(c.admit);
+  const users=g?gUbyG(g.id):[];
+  document.getElementById('detBody').innerHTML=`
+    <div class="card" style="margin:0 0 16px">
+      <div class="row" style="cursor:default"><div class="row-body">
+        <div style="font-size:12px;font-weight:600;color:var(--ios-blue);margin-bottom:2px">${esc(c.hn)}</div>
+        <div style="font-size:20px;font-weight:700">${esc(c.name)}</div>
+        <div style="font-size:14px;color:var(--text3);margin-top:3px">${esc(c.dx)}</div>
+      </div></div>
+      <div class="row" style="cursor:default"><div class="row-body"><div class="row-sub">Admit Date</div><div style="font-size:15px">${esc(c.admit)} <span style="color:var(--ios-orange);font-size:13px">(Day ${d})</span></div></div></div>
+      <div class="row" style="cursor:default"><div class="row-body"><div class="row-sub">Group</div><div style="font-size:15px">${esc(g?g.name:'—')}</div></div></div>
+    </div>
+
+    <div class="sh" style="padding-top:4px">Daily Checklist</div>
+    <div class="card inline-check-wrap" style="margin:0 0 16px">
+      <div class="ck-row">
+        <div class="ck${c.round?' on':''}" id="dRound" onclick="toggleF('${c.id}','round')"></div>
+        <div class="ck-lbl">Round</div><div class="ck-note">Resets daily at midnight</div>
+      </div>
+      <div class="ck-row">
+        <div class="ck${c.admNote?' on':''}" id="dAdmNote" onclick="toggleF('${c.id}','admNote')"></div>
+        <div class="ck-lbl">Admission Note</div><div class="ck-note">Persistent</div>
+      </div>
+    </div>
+
+    <div class="sh" style="padding-top:4px">Report</div>
+    <div class="card" style="margin:0 0 16px">
+      <div class="row" style="cursor:default">
+        <div class="row-body"><div class="row-sub">Select Report Type</div></div>
+        <select class="fi" style="width:auto;margin-left:8px;font-size:15px" id="rptSel" onchange="setReport('${c.id}',this.value)">
+          <option value="">— None —</option>
+          <option value="Discharge Summary">Discharge Summary</option>
+          <option value="Progress Note">Progress Note</option>
+          <option value="Operative Note">Operative Note</option>
+          <option value="Consult Note">Consult Note</option>
+          <option value="Death Summary">Death Summary</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sh" style="padding-top:4px">Assign To</div>
+    <div class="card" style="margin:0 0 16px">
+      <div class="row" style="cursor:default">
+        <div class="row-body"><div class="row-sub">Assigned User</div></div>
+        <select class="fi" style="width:auto;margin-left:8px;font-size:15px" id="asnSel" onchange="reassign('${c.id}',this.value)">
+          ${users.map(u=>`<option value="${u.id}"${c.uid===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="sh" style="padding-top:4px">Actions</div>
+    <button class="btn btn-r" onclick="discharge('${c.id}')">🔴 Discharge Patient</button>
+    <div style="height:20px"></div>
+  `;
+  setTimeout(()=>{
+    const rs=document.getElementById('rptSel');if(rs)rs.value=c.report||'';
+  },50);
+  open_('sCaseDetail');
+}
+
+function toggleF(cId,field){
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  c[field]=!c[field];save();
+  const elId=field==='round'?'dRound':'dAdmNote';
+  const el=document.getElementById(elId);
+  if(el)el.classList.toggle('on',c[field]);
+  refresh();
+  toast(c[field]?(field==='round'?'✓ Rounded':'✓ Adm. Note done'):(field==='round'?'Round cleared':'Adm. Note cleared'));
+}
+function setReport(cId,val){
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  c.report=val;save();refresh();toast(val?`Report: ${val}`:'Report cleared');
+}
+function reassign(cId,uId){
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  c.uid=uId;save();refresh();const u=gU(uId);toast(`Assigned to ${u?u.name:'user'}`);
+}
+function discharge(cId){
+  if(!confirm('Discharge this patient? They will be removed from active cases.'))return;
+  const c=DB.cases.find(x=>x.id===cId);if(!c)return;
+  c.out=true;save();close_('sCaseDetail');refresh();toast('Patient discharged');
+}
+function openEditFromDetail(){close_('sCaseDetail');openAddCase(false,editId);}
+function refresh(){if(curTab===1)renderAll();if(curTab===2)renderMy();if(curTab===3)renderStats();}
+
+// ============================================================
+// ADD / EDIT CASE
+// ============================================================
+function openAddCase(forMy=false, eId=null){
+  isMy=forMy; editId=eId;
+  const c=eId?DB.cases.find(x=>x.id===eId):null;
+  document.getElementById('addCaseTitle').textContent=eId?'Edit Case':'New Case';
+  const groups=DB.sel.wardId?gGbyW(DB.sel.wardId):DB.groups;
+  const defaultGid=c?c.gId:(DB.sel.groupId||groups[0]?.id||'');
+  const users=gUbyG(defaultGid);
+  document.getElementById('addCaseBody').innerHTML=`
+    ${!eId?`<div style="background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+      <div class="ai-pill">✨ AI Scan</div>
+      <div style="font-size:13px;color:var(--text3);margin:6px 0 10px">Photograph patient wristband/card to auto-fill HN & Name</div>
+      <button class="btn btn-s" style="padding:11px" onclick="document.getElementById('cameraInput').click()">📷 Scan Patient Info</button>
+    </div>`:''}
+    <div class="fg"><div class="fl">HN (Hospital Number) *</div><input class="fi" id="fHN" placeholder="e.g. HN001234" value="${esc(c?.hn||'')}"/></div>
+    <div class="fg"><div class="fl">Patient Name *</div><input class="fi" id="fName" placeholder="Full name" value="${esc(c?.name||'')}"/></div>
+    <div class="fg"><div class="fl">Diagnosis *</div><input class="fi" id="fDx" placeholder="Primary diagnosis" value="${esc(c?.dx||'')}"/></div>
+    <div class="fg"><div class="fl">Admit Date *</div><input class="fi" type="date" id="fAdmit" value="${c?.admit||new Date().toISOString().split('T')[0]}"/></div>
+    <div class="fg"><div class="fl">Group</div>
+      <select class="fi" id="fGroup" onchange="refreshCaseUsers()">
+        ${groups.map(g=>`<option value="${g.id}"${defaultGid===g.id?' selected':''}>${esc(g.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><div class="fl">Assign To</div>
+      <select class="fi" id="fUser">
+        ${users.map(u=>`<option value="${u.id}"${c?.uid===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><div class="fl">Admission Note</div>
+      <div class="card inline-check-wrap">
+        <div class="ck-row"><div class="ck${c?.admNote?' on':''}" id="fAdmNote" onclick="this.classList.toggle('on')"></div><div class="ck-lbl">Admission Note Done</div></div>
+      </div>
+    </div>
+    ${eId?`<button class="btn btn-r" onclick="delCase('${eId}')">Delete Case</button>`:''}
+    <div style="height:16px"></div>
+  `;
+  open_('sAddCase');
+}
+function refreshCaseUsers(){
+  const gId=document.getElementById('fGroup').value;
+  const users=gUbyG(gId);
+  const el=document.getElementById('fUser');
+  if(el)el.innerHTML=users.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+}
+function submitCase(){
+  const hn=document.getElementById('fHN').value.trim();
+  const name=document.getElementById('fName').value.trim();
+  const dx=document.getElementById('fDx').value.trim();
+  const admit=document.getElementById('fAdmit').value;
+  const gId=document.getElementById('fGroup').value;
+  const uId=document.getElementById('fUser').value;
+  const admNote=document.getElementById('fAdmNote').classList.contains('on');
+  if(!hn||!name||!dx||!admit){toast('Please fill all required fields (*)');return;}
+  if(editId){
+    const c=DB.cases.find(x=>x.id===editId);
+    if(c){c.hn=hn;c.name=name;c.dx=dx;c.admit=admit;c.gId=gId;c.uid=uId;c.admNote=admNote;}
+    toast('Case updated ✓');
+  } else {
+    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:'',round:false,admNote,out:false});
+    toast('Case added ✓');
+  }
+  save();close_('sAddCase');refresh();
+}
+function delCase(id){
+  if(!confirm('Delete this case permanently?'))return;
+  DB.cases=DB.cases.filter(c=>c.id!==id);
+  save();close_('sAddCase');refresh();toast('Case deleted');
+}
+
+// ============================================================
+// AI SCAN
+// ============================================================
+async function onCapture(e){
+  const file=e.target.files[0];if(!file)return;
+  e.target.value='';
+  close_('sAddCase');
+  toast('🔍 Scanning with AI…');
+  const reader=new FileReader();
+  reader.onload=async(ev)=>{
+    const b64=ev.target.result.split(',')[1];
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:500,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+            {type:'text',text:'Extract patient info from this medical label/wristband image. Return ONLY a valid JSON object with exactly two keys: "hn" (hospital number/patient ID) and "name" (full patient name). If a value cannot be found, use empty string. No markdown, no explanation.'}
+          ]}]
+        })
+      });
+      const data=await res.json();
+      let txt=data.content?.[0]?.text||'{}';
+      let parsed={};
+      try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(ex){}
+      scanD=parsed;
+      showScanConfirm(parsed);
+    }catch(err){
+      console.error(err);
+      toast('Scan failed — enter data manually');
+      openAddCase(false);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function showScanConfirm(d){
+  document.getElementById('scanBody').innerHTML=`
+    <div class="ai-pill">✨ AI Extracted</div>
+    <p style="font-size:13px;color:var(--text3);margin:8px 0 16px">Review and correct before proceeding. Remaining fields will be filled next.</p>
+    <div class="fg"><div class="fl">HN</div><input class="fi" id="scHN" value="${esc(d.hn||'')}" placeholder="Hospital Number"/></div>
+    <div class="fg"><div class="fl">Patient Name</div><input class="fi" id="scName" value="${esc(d.name||'')}" placeholder="Full Name"/></div>
+  `;
+  open_('sScan');
+}
+function useScan(){
+  scanD.hn=document.getElementById('scHN').value.trim();
+  scanD.name=document.getElementById('scName').value.trim();
+  close_('sScan');
+  openAddCase(false);
+  setTimeout(()=>{
+    const h=document.getElementById('fHN'),n=document.getElementById('fName');
+    if(h)h.value=scanD.hn||'';
+    if(n)n.value=scanD.name||'';
+  },120);
+}
+
+// ============================================================
+// PAGE 4: STATS
+// ============================================================
+function renderStats(){
+  const el=document.getElementById('statsBody');
+  if(!DB.sel.wardId){el.innerHTML=emptySetup();return;}
+  const wGroups=gGbyW(DB.sel.wardId);
+  let html='';
+  wGroups.forEach(g=>{
+    const cases=gCbyG(g.id);
+    const users=gUbyG(g.id);
+    const rptCnt=cases.filter(c=>c.report).length;
+    const rndCnt=cases.filter(c=>c.round).length;
+    html+=`<div class="sh">${esc(g.name)}</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-n">${cases.length}</div><div class="stat-l">Active Cases</div></div>
+      <div class="stat-card"><div class="stat-n">${rptCnt}</div><div class="stat-l">Reports Selected</div></div>
+      <div class="stat-card"><div class="stat-n">${rndCnt}</div><div class="stat-l">Rounded Today</div></div>
+      <div class="stat-card"><div class="stat-n">${users.length}</div><div class="stat-l">Team Members</div></div>
+    </div>
+    <div class="sh" style="padding-top:12px">Per Member</div>
+    <div class="card" style="margin-bottom:8px">
+      ${users.map(u=>{
+        const uc=cases.filter(c=>c.uid===u.id);
+        const ur=uc.filter(c=>c.report);
+        return `<div class="row" style="cursor:default">
+          <div class="av" style="margin-right:12px;background:${hashColor(u.name)}">${esc(ini(u.name))}</div>
+          <div class="row-body"><div class="row-title">${esc(u.name)}</div><div class="row-sub">${esc(u.role)}</div></div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:22px;font-weight:700;color:var(--ios-blue)">${uc.length}</div>
+            <div style="font-size:11px;color:var(--text3)">cases</div>
+            ${ur.length?`<div style="background:rgba(175,82,222,.12);color:var(--ios-purple);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:3px">${ur.length} rpt</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+function hashColor(s){const h=[`#007AFF`,`#34C759`,`#FF9500`,`#AF52DE`,`#FF3B30`,`#5AC8FA`,`#FF2D55`];let n=0;for(let i=0;i<s.length;i++)n=(n+s.charCodeAt(i))%h.length;return h[n];}
+
+// ============================================================
+// CLOSE ON BACKDROP
+// ============================================================
+document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hide');});});
+
+// ============================================================
+// INIT
+// ============================================================
+loadDB();
+renderSetup();
+updateNav();
+if(DB.sel.wardId)document.getElementById('grpSec').classList.remove('hidden');
+if(DB.sel.groupId)document.getElementById('usrSec').classList.remove('hidden');
+</script>
+</body>
+</html>
