@@ -3,226 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>WardSync — Case Management</title>
+<title>WardSync</title>
 <style>
-  :root {
-    --ios-blue: #007AFF;
-    --ios-blue-dark: #0056CC;
-    --ios-green: #34C759;
-    --ios-red: #FF3B30;
-    --ios-orange: #FF9500;
-    --ios-yellow: #FFCC00;
-    --ios-purple: #AF52DE;
-    --ios-gray: #8E8E93;
-    --ios-gray2: #AEAEB2;
-    --ios-gray3: #C7C7CC;
-    --ios-gray4: #D1D1D6;
-    --ios-gray5: #E5E5EA;
-    --ios-gray6: #F2F2F7;
-    --bg: #F2F2F7;
-    --card: #FFFFFF;
-    --text: #000000;
-    --text2: #3C3C43;
-    --text3: #6C6C70;
-    --sep: rgba(60,60,67,0.12);
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --nav-h: 56px;
-    --tab-h: 83px;
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root{
+  --blue:#007AFF; --blue-dk:#0056CC; --green:#34C759; --red:#FF3B30;
+  --orange:#FF9500; --purple:#AF52DE; --gray:#8E8E93; --gray2:#AEAEB2;
+  --gray3:#C7C7CC; --gray4:#D1D1D6; --gray5:#E5E5EA; --gray6:#F2F2F7;
+  --bg:#F2F2F7; --card:#FFFFFF; --txt:#000; --txt2:#3C3C43; --txt3:#6C6C70;
+  --sep:rgba(60,60,67,.12);
+  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+  --nh:56px; --th:83px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1C1C1E; --card:#2C2C2E; --txt:#FFF; --txt2:#EBEBF5;
+    --txt3:rgba(235,235,245,.55); --sep:rgba(84,84,88,.6);
+    --gray5:#2C2C2E; --gray4:#3A3A3C; --gray3:#48484A;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1C1C1E; --card: #2C2C2E; --text: #FFFFFF;
-      --text2: #EBEBF5; --text3: rgba(235,235,245,0.6);
-      --sep: rgba(84,84,88,0.6);
-      --ios-gray6: #1C1C1E; --ios-gray5: #2C2C2E;
-      --ios-gray4: #3A3A3C; --ios-gray3: #48484A;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); }
-  #app { display: flex; flex-direction: column; height: 100%; height: -webkit-fill-available; }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--txt)}
+#app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available}
 
-  /* NAV */
-  .nav-bar { background: rgba(255,255,255,0.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 0.5px solid var(--sep); padding-top: var(--safe-top); flex-shrink: 0; z-index: 100; }
-  @media (prefers-color-scheme: dark) { .nav-bar { background: rgba(28,28,30,0.88); } }
-  .nav-inner { height: var(--nav-h); display: flex; align-items: center; padding: 0 16px; }
-  .nav-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; flex: 1; text-align: center; }
-  .nav-side { min-width: 88px; display: flex; align-items: center; }
-  .nav-side.right { justify-content: flex-end; }
-  .nav-btn { background: none; border: none; color: var(--ios-blue); font-size: 17px; padding: 6px 0; font-family: inherit; cursor: pointer; }
-  .nav-btn:active { opacity: 0.5; }
-  .nav-sub { font-size: 11px; color: var(--text3); text-align: center; padding: 0 16px 8px; }
+/* ─── NAV ─────────────────────────────────────────────────── */
+.nav{background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep);padding-top:var(--st);flex-shrink:0;z-index:100}
+@media(prefers-color-scheme:dark){.nav{background:rgba(28,28,30,.88)}}
+.nav-in{height:var(--nh);display:flex;align-items:center;padding:0 16px}
+.nav-t{font-size:17px;font-weight:600;letter-spacing:-.4px;flex:1;text-align:center}
+.nav-s{min-width:88px;display:flex;align-items:center}
+.nav-s.r{justify-content:flex-end}
+.nav-btn{background:none;border:none;color:var(--blue);font-size:17px;padding:6px 0;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:4px}
+.nav-btn:active{opacity:.5}
+.nav-btn.red{color:var(--red)}
+.nav-sub{font-size:11px;color:var(--txt3);text-align:center;padding:0 16px 7px}
 
-  /* CONTENT */
-  .page { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-  .page.active { display: flex; }
-  .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); }
+/* ─── TABS ────────────────────────────────────────────────── */
+.tabbar{background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep);padding-bottom:var(--sb);display:flex;flex-shrink:0;z-index:100}
+@media(prefers-color-scheme:dark){.tabbar{background:rgba(28,28,30,.88)}}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 4px;cursor:pointer;min-height:var(--th);border:none;background:none;font-family:inherit;color:var(--gray2)}
+.tab.on{color:var(--blue)}
+.tab:active{opacity:.7}
+.tab-i{font-size:22px;margin-bottom:4px}
+.tab-l{font-size:10px;font-weight:500}
 
-  /* SECTION */
-  .sh { font-size: 13px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; padding: 20px 32px 8px; }
-  .card { background: var(--card); border-radius: 12px; overflow: hidden; margin: 0 16px; }
-  .row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 0.5px solid var(--sep); min-height: 44px; cursor: pointer; }
-  .row:last-child { border-bottom: none; }
-  .row:active { background: var(--ios-gray5); }
-  .row-body { flex: 1; }
-  .row-title { font-size: 17px; }
-  .row-sub { font-size: 14px; color: var(--text3); margin-top: 2px; }
-  .chev { color: var(--ios-gray3); font-size: 18px; margin-left: 8px; flex-shrink: 0; }
+/* ─── PAGES ───────────────────────────────────────────────── */
+.page{display:none;flex-direction:column;flex:1;overflow:hidden}
+.page.on{display:flex}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(var(--th) + var(--sb) + 20px)}
 
-  /* TAB BAR */
-  .tab-bar { background: rgba(255,255,255,0.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 0.5px solid var(--sep); padding-bottom: var(--safe-bottom); display: flex; flex-shrink: 0; z-index: 100; }
-  @media (prefers-color-scheme: dark) { .tab-bar { background: rgba(28,28,30,0.88); } }
-  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px 4px; cursor: pointer; min-height: var(--tab-h); border: none; background: none; font-family: inherit; color: var(--ios-gray2); }
-  .tab.active { color: var(--ios-blue); }
-  .tab:active { opacity: 0.7; }
-  .tab-icon { font-size: 22px; margin-bottom: 4px; }
-  .tab-lbl { font-size: 10px; font-weight: 500; }
+/* ─── LAYOUT HELPERS ──────────────────────────────────────── */
+.sh{font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:20px 32px 8px}
+.card{background:var(--card);border-radius:12px;overflow:hidden;margin:0 16px}
+.row{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:44px;cursor:pointer}
+.row:last-child{border-bottom:none}
+.row:active{background:var(--gray5)}
+.rb{flex:1}
+.rt{font-size:17px}
+.rs{font-size:14px;color:var(--txt3);margin-top:2px}
+.chev{color:var(--gray3);font-size:18px;margin-left:8px;flex-shrink:0}
 
-  /* SETUP HERO */
-  .hero { background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); padding: calc(var(--safe-top) + 20px) 24px 28px; color: white; text-align: center; }
-  .hero h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
-  .hero p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+/* ─── FORM ────────────────────────────────────────────────── */
+.fg{margin-bottom:14px}
+.fl{font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;padding-left:4px}
+.fi{width:100%;padding:12px 16px;font-size:17px;font-family:inherit;background:var(--card);border:1.5px solid transparent;border-radius:12px;color:var(--txt);outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
+.fi:focus{border-color:var(--blue)}
+.fi::placeholder{color:var(--gray3)}
+select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%238E8E93'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 
-  /* BADGES */
-  .badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-  .b-blue { background: rgba(0,122,255,.12); color: var(--ios-blue); }
-  .b-green { background: rgba(52,199,89,.15); color: var(--ios-green); }
-  .b-orange { background: rgba(255,149,0,.15); color: var(--ios-orange); }
-  .b-red { background: rgba(255,59,48,.12); color: var(--ios-red); }
-  .b-gray { background: var(--ios-gray5); color: var(--ios-gray); }
-  .b-purple { background: rgba(175,82,222,.12); color: var(--ios-purple); }
+/* ─── BUTTONS ─────────────────────────────────────────────── */
+.btn{width:100%;padding:14px 16px;border:none;border-radius:12px;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.btn:active{opacity:.7}
+.bp{background:var(--blue);color:#fff}
+.bs{background:var(--gray5);color:var(--blue)}
+.br{background:rgba(255,59,48,.12);color:var(--red)}
+.btn+.btn{margin-top:10px}
 
-  /* CASE CARD */
-  .case-card { background: var(--card); border-radius: 14px; margin: 0 16px 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); cursor: pointer; transition: transform .15s; }
-  .case-card:active { transform: scale(0.975); }
-  .cc-head { padding: 13px 16px 10px; display: flex; gap: 12px; align-items: flex-start; }
-  .cc-body { flex: 1; }
-  .cc-hn { font-size: 12px; font-weight: 600; color: var(--ios-blue); }
-  .cc-name { font-size: 17px; font-weight: 600; margin-top: 1px; }
-  .cc-diag { font-size: 14px; color: var(--text3); margin-top: 2px; }
-  .cc-day { font-size: 12px; color: var(--ios-orange); font-weight: 500; text-align: right; white-space: nowrap; }
-  .cc-foot { padding: 8px 16px 11px; border-top: 0.5px solid var(--sep); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+/* ─── FAB ─────────────────────────────────────────────────── */
+.fab{position:fixed;bottom:calc(var(--th) + var(--sb) + 16px);right:20px;width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,122,255,.45);z-index:50;transition:transform .15s;font-family:inherit}
+.fab:active{transform:scale(.9)}
 
-  /* AVATAR */
-  .av { width: 36px; height: 36px; border-radius: 50%; background: var(--ios-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+/* ─── SHEET / OVERLAY ─────────────────────────────────────── */
+.ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);display:flex;flex-direction:column;justify-content:flex-end;animation:fIn .25s}
+.ov.hide{display:none}
+@keyframes fIn{from{opacity:0}to{opacity:1}}
+.sh-el{background:var(--bg);border-radius:16px 16px 0 0;max-height:92vh;display:flex;flex-direction:column;animation:sUp .33s cubic-bezier(.32,.72,0,1);padding-bottom:var(--sb)}
+@keyframes sUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:36px;height:5px;background:var(--gray3);border-radius:3px;margin:10px auto 4px;flex-shrink:0}
+.sh-head{padding:8px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:.5px solid var(--sep)}
+.sh-title{font-size:17px;font-weight:600}
+.sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 20px}
 
-  /* IOS CHECK */
-  .ck { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ios-gray3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all .2s; }
-  .ck.on { background: var(--ios-blue); border-color: var(--ios-blue); color: white; font-size: 14px; font-weight: 700; }
-  .ck.on::after { content: '✓'; }
-  .ck-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 0.5px solid var(--sep); min-height: 48px; }
-  .ck-row:last-child { border-bottom: none; }
-  .ck-lbl { font-size: 17px; flex: 1; }
-  .ck-note { font-size: 12px; color: var(--text3); }
+/* ─── AVATAR ──────────────────────────────────────────────── */
+.av{width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
 
-  /* SEGMENT */
-  .seg { display: flex; background: var(--ios-gray5); border-radius: 9px; padding: 2px; margin: 12px 16px; }
-  .seg-btn { flex: 1; padding: 7px 8px; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; font-family: inherit; color: var(--text3); background: transparent; cursor: pointer; transition: all .2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .seg-btn.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+/* ─── BADGES ──────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600}
+.b-blue{background:rgba(0,122,255,.12);color:var(--blue)}
+.b-green{background:rgba(52,199,89,.15);color:var(--green)}
+.b-orange{background:rgba(255,149,0,.15);color:var(--orange)}
+.b-red{background:rgba(255,59,48,.12);color:var(--red)}
+.b-gray{background:var(--gray5);color:var(--gray)}
+.b-purple{background:rgba(175,82,222,.12);color:var(--purple)}
 
-  /* FAB */
-  .fab { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--ios-blue); color: white; font-size: 26px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,122,255,.45); z-index: 50; transition: transform .15s; font-family: inherit; }
-  .fab:active { transform: scale(0.9); }
+/* ─── CASE CARD ───────────────────────────────────────────── */
+.cc{background:var(--card);border-radius:14px;margin:0 16px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;transition:transform .15s}
+.cc:active{transform:scale(.975)}
+.cc-h{padding:13px 16px 10px;display:flex;gap:10px;align-items:flex-start}
+.cc-b{flex:1}
+.cc-hn{font-size:12px;font-weight:600;color:var(--blue)}
+.cc-n{font-size:17px;font-weight:600;margin-top:1px;letter-spacing:-.3px}
+.cc-d{font-size:14px;color:var(--txt3);margin-top:2px}
+.cc-day{font-size:12px;color:var(--orange);font-weight:500;white-space:nowrap}
+.cc-f{padding:8px 16px 11px;border-top:.5px solid var(--sep);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 
-  /* SHEET */
-  .overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.4); display: flex; flex-direction: column; justify-content: flex-end; animation: fadeIn .25s; }
-  .overlay.hide { display: none; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .sheet { background: var(--bg); border-radius: 16px 16px 0 0; max-height: 92vh; display: flex; flex-direction: column; animation: slideUp .33s cubic-bezier(0.32,0.72,0,1); padding-bottom: var(--safe-bottom); }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .sh-handle { width: 36px; height: 5px; background: var(--ios-gray3); border-radius: 3px; margin: 10px auto 4px; flex-shrink: 0; }
-  .sh-head { padding: 8px 16px 10px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .sh-title { font-size: 17px; font-weight: 600; }
-  .sh-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px 20px; }
+/* ─── CHECKBOX ROW ────────────────────────────────────────── */
+.ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--gray3);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .2s}
+.ck.on{background:var(--blue);border-color:var(--blue)}
+.ck.on::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+.ck-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:48px}
+.ck-row:last-child{border-bottom:none}
+.ck-lbl{font-size:17px;flex:1}
+.ck-note{font-size:12px;color:var(--txt3)}
 
-  /* FORM */
-  .fg { margin-bottom: 14px; }
-  .fl { font-size: 13px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; padding-left: 4px; }
-  .fi { width: 100%; padding: 12px 16px; font-size: 17px; font-family: inherit; background: var(--card); border: 1.5px solid transparent; border-radius: 12px; color: var(--text); outline: none; -webkit-appearance: none; appearance: none; transition: border-color .2s; }
-  .fi:focus { border-color: var(--ios-blue); }
-  .fi::placeholder { color: var(--ios-gray3); }
-  select.fi { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%238E8E93'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+/* ─── SEGMENT ─────────────────────────────────────────────── */
+.seg{display:flex;background:var(--gray5);border-radius:9px;padding:2px;margin:12px 16px}
+.seg-b{flex:1;padding:7px 8px;border:none;border-radius:7px;font-size:13px;font-weight:500;font-family:inherit;color:var(--txt3);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg-b.on{background:var(--card);color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
-  /* BTNS */
-  .btn { width: 100%; padding: 14px 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s; }
-  .btn:active { opacity: 0.7; }
-  .btn-p { background: var(--ios-blue); color: white; }
-  .btn-s { background: var(--ios-gray5); color: var(--ios-blue); }
-  .btn-r { background: rgba(255,59,48,.12); color: var(--ios-red); }
-  .btn-g { background: rgba(52,199,89,.15); color: var(--ios-green); }
-  .btn + .btn { margin-top: 10px; }
+/* ─── STATS ───────────────────────────────────────────────── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.sc{background:var(--card);border-radius:14px;padding:16px}
+.sn{font-size:34px;font-weight:700;letter-spacing:-1px;color:var(--blue);line-height:1}
+.sl{font-size:13px;color:var(--txt3);margin-top:5px;line-height:1.3}
 
-  /* STATS */
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
-  .stat-card { background: var(--card); border-radius: 14px; padding: 16px; }
-  .stat-n { font-size: 34px; font-weight: 700; letter-spacing: -1px; color: var(--ios-blue); line-height: 1; }
-  .stat-l { font-size: 13px; color: var(--text3); margin-top: 5px; line-height: 1.3; }
+/* ─── AI PILL ─────────────────────────────────────────────── */
+.ai-pill{display:inline-block;background:linear-gradient(90deg,#007AFF,#AF52DE);color:#fff;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:8px}
 
-  /* EMPTY */
-  .empty { text-align: center; padding: 60px 32px; color: var(--text3); }
-  .empty-i { font-size: 52px; margin-bottom: 14px; }
-  .empty-t { font-size: 17px; font-weight: 600; color: var(--text2); }
-  .empty-s { font-size: 15px; margin-top: 6px; }
+/* ─── TOAST ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:calc(var(--th) + var(--sb) + 76px);left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(0,0,0,.78);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;pointer-events:none;transition:opacity .25s,transform .25s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* AI */
-  .ai-pill { display: inline-block; background: linear-gradient(90deg,#007AFF,#AF52DE); color: white; padding: 3px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+/* ─── LOADING ─────────────────────────────────────────────── */
+.spin-wrap{display:flex;align-items:center;justify-content:center;padding:60px}
+.spinner{width:32px;height:32px;border:3px solid var(--gray4);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* TOAST */
-  #toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bottom) + 76px); left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; background: rgba(0,0,0,.78); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 9999; white-space: nowrap; max-width: 90vw; text-align: center; }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ─── EMPTY ───────────────────────────────────────────────── */
+.empty{text-align:center;padding:60px 32px;color:var(--txt3)}
+.empty-i{font-size:52px;margin-bottom:14px}
+.empty-t{font-size:17px;font-weight:600;color:var(--txt2)}
+.empty-s{font-size:15px;margin-top:6px}
 
-  /* LANDSCAPE */
-  @media (orientation:landscape) and (max-height:500px) {
-    :root { --nav-h:44px; --tab-h:50px; }
-    .hero { padding: 12px 24px 16px; }
-    .hero h1 { font-size: 20px; }
-    .stat-grid { grid-template-columns: repeat(4,1fr); }
-    .sh-body { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
-    .sh-body .btn + .btn { margin-top: 0; }
-  }
+/* ─── LOGIN WALL ──────────────────────────────────────────── */
+#loginWall{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#loginWall.hide{display:none}
+.lw-hero{background:linear-gradient(135deg,#007AFF,#5856D6);padding:calc(var(--st) + 48px) 24px 40px;text-align:center;color:#fff;flex-shrink:0}
+.lw-hero h1{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.lw-hero p{font-size:15px;opacity:.85;margin-top:6px}
+.lw-body{padding:24px 16px;flex:1}
 
-  .hidden { display: none !important; }
-  #cameraInput { display: none; }
-  .divider { height: 0.5px; background: var(--sep); margin: 0 16px; }
-  .inline-check-wrap { background: var(--card); border-radius: 12px; }
+/* ─── EDIT MODE ───────────────────────────────────────────── */
+.edit-mode .row{cursor:default}
+.edit-mode .row:active{background:transparent}
+
+/* ─── LANDSCAPE ───────────────────────────────────────────── */
+@media(orientation:landscape) and (max-height:500px){
+  :root{--nh:44px;--th:50px}
+  .lw-hero{padding:calc(var(--st) + 16px) 24px 20px}
+  .lw-hero h1{font-size:22px}
+  .sg{grid-template-columns:repeat(4,1fr)}
+  .sh-el{max-height:95vh}
+  .sh-body{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}
+}
+
+/* ─── MISC ────────────────────────────────────────────────── */
+.hidden{display:none!important}
+#cameraInput{display:none}
+.sep-line{height:.5px;background:var(--sep);margin:0}
+.report-yes{background:rgba(52,199,89,.15);color:var(--green)}
+.report-no{background:rgba(255,59,48,.12);color:var(--red)}
+.inline-card{background:var(--card);border-radius:12px;overflow:hidden}
+.row-nd{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);min-height:44px}
+.row-nd:last-child{border-bottom:none}
 </style>
 </head>
 <body>
 <div id="app">
 
   <!-- NAV BAR -->
-  <div class="nav-bar" id="navBar">
-    <div class="nav-inner">
-      <div class="nav-side" id="navL"></div>
-      <div class="nav-title" id="navT">WardSync</div>
-      <div class="nav-side right" id="navR"></div>
+  <div class="nav" id="navBar">
+    <div class="nav-in">
+      <div class="nav-s" id="navL"></div>
+      <div class="nav-t" id="navT">WardSync</div>
+      <div class="nav-s r" id="navR"></div>
     </div>
     <div id="navSub" class="nav-sub hidden"></div>
   </div>
 
-  <!-- PAGE: SETUP -->
-  <div id="p0" class="page active">
+  <!-- PAGE 0: SETUP / MANAGE -->
+  <div id="p0" class="page on">
     <div class="scroll" id="s0">
-      <div class="hero">
-        <div style="font-size:44px;margin-bottom:10px">🏥</div>
-        <h1>WardSync</h1>
-        <p>Patient Case Management System</p>
+      <!-- ward section -->
+      <div class="sh" style="display:flex;align-items:center;justify-content:space-between;padding-right:16px">
+        <span>Wards</span>
+        <button class="nav-btn" onclick="openAddWard()" style="font-size:14px">＋ Add</button>
       </div>
-
-      <div class="sh">Select Ward</div>
       <div class="card" id="wardList"></div>
 
+      <!-- group section -->
       <div id="grpSec" class="hidden">
-        <div class="sh">Select Group</div>
+        <div class="sh" style="display:flex;align-items:center;justify-content:space-between;padding-right:16px">
+          <span>Groups</span>
+          <button class="nav-btn" onclick="openAddGroup()" style="font-size:14px">＋ Add</button>
+        </div>
         <div class="card" id="groupList"></div>
       </div>
 
+      <!-- user section -->
       <div id="usrSec" class="hidden">
-        <div class="sh">Select Your Profile</div>
+        <div class="sh">Your Profile</div>
         <div class="card" id="userList"></div>
         <div style="margin:12px 16px 0">
-          <button class="btn btn-s" onclick="openAddUser()">＋ Add New User</button>
+          <button class="btn bs" onclick="openAddUser()">＋ Add New User</button>
         </div>
       </div>
 
@@ -230,7 +233,7 @@
     </div>
   </div>
 
-  <!-- PAGE: ALL CASES -->
+  <!-- PAGE 1: ALL CASES -->
   <div id="p1" class="page">
     <div class="scroll" id="s1">
       <div style="height:8px"></div>
@@ -241,7 +244,7 @@
     <button class="fab" onclick="openAddCase(false)">＋</button>
   </div>
 
-  <!-- PAGE: MY CASES -->
+  <!-- PAGE 2: MY CASES -->
   <div id="p2" class="page">
     <div class="scroll" id="s2">
       <div style="height:12px"></div>
@@ -251,7 +254,7 @@
     <button class="fab" onclick="openAddCase(true)">＋</button>
   </div>
 
-  <!-- PAGE: STATS -->
+  <!-- PAGE 3: STATS -->
   <div id="p3" class="page">
     <div class="scroll" id="s3">
       <div style="height:8px"></div>
@@ -261,47 +264,113 @@
   </div>
 
   <!-- TAB BAR -->
-  <div class="tab-bar">
-    <button class="tab active" id="t0" onclick="goTab(0)"><div class="tab-icon">⚙️</div><div class="tab-lbl">Setup</div></button>
-    <button class="tab" id="t1" onclick="goTab(1)"><div class="tab-icon">🏥</div><div class="tab-lbl">All Cases</div></button>
-    <button class="tab" id="t2" onclick="goTab(2)"><div class="tab-icon">👤</div><div class="tab-lbl">My Cases</div></button>
-    <button class="tab" id="t3" onclick="goTab(3)"><div class="tab-icon">📊</div><div class="tab-lbl">Stats</div></button>
+  <div class="tabbar">
+    <button class="tab on" id="t0" onclick="goTab(0)"><div class="tab-i">⚙️</div><div class="tab-l">Setup</div></button>
+    <button class="tab" id="t1" onclick="goTab(1)"><div class="tab-i">🏥</div><div class="tab-l">All Cases</div></button>
+    <button class="tab" id="t2" onclick="goTab(2)"><div class="tab-i">👤</div><div class="tab-l">My Cases</div></button>
+    <button class="tab" id="t3" onclick="goTab(3)"><div class="tab-i">📊</div><div class="tab-l">Stats</div></button>
   </div>
 </div>
 
-<!-- SHEET: CASE DETAIL -->
-<div class="overlay hide" id="sCaseDetail">
-  <div class="sheet">
+<!-- ═══════════ LOGIN WALL ════════════ -->
+<div id="loginWall">
+  <div class="lw-hero">
+    <div style="font-size:52px;margin-bottom:12px">🏥</div>
+    <h1>WardSync</h1>
+    <p>Patient Case Management</p>
+  </div>
+  <div class="lw-body">
+    <!-- Step 1: select ward -->
+    <div id="lwStep1">
+      <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Select Ward</div>
+      <div class="card" id="lwWardList"></div>
+    </div>
+    <!-- Step 2: select group -->
+    <div id="lwStep2" class="hidden">
+      <button class="nav-btn" style="margin-bottom:12px;padding-left:0" onclick="lwBack(1)">‹ Back</button>
+      <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Select Group</div>
+      <div class="card" id="lwGroupList"></div>
+    </div>
+    <!-- Step 3: select user -->
+    <div id="lwStep3" class="hidden">
+      <button class="nav-btn" style="margin-bottom:12px;padding-left:0" onclick="lwBack(2)">‹ Back</button>
+      <div style="font-size:17px;font-weight:600;margin-bottom:12px;padding-left:4px">Who are you?</div>
+      <div class="card" id="lwUserList"></div>
+      <div style="height:12px"></div>
+      <button class="btn bs" onclick="openAddUser(true)">＋ Add New User</button>
+    </div>
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- ═══════════ SHEETS ════════════ -->
+
+<!-- CASE DETAIL -->
+<div class="ov hide" id="sCaseDetail">
+  <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
       <button class="nav-btn" onclick="close_('sCaseDetail')">Close</button>
       <div class="sh-title" id="detTitle">Detail</div>
-      <button class="nav-btn" id="detEditBtn" onclick="openEditFromDetail()">Edit</button>
+      <button class="nav-btn" onclick="openEditFromDetail()">Edit</button>
     </div>
     <div class="sh-body" id="detBody"></div>
   </div>
 </div>
 
-<!-- SHEET: ADD/EDIT CASE -->
-<div class="overlay hide" id="sAddCase">
-  <div class="sheet">
+<!-- ADD/EDIT CASE -->
+<div class="ov hide" id="sAddCase">
+  <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
       <button class="nav-btn" onclick="close_('sAddCase')">Cancel</button>
       <div class="sh-title" id="addCaseTitle">New Case</div>
-      <button class="nav-btn" onclick="submitCase()">Save</button>
+      <button class="nav-btn" onclick="submitCase()" id="saveCaseBtn">Save</button>
     </div>
     <div class="sh-body" id="addCaseBody"></div>
   </div>
 </div>
 
-<!-- SHEET: ADD USER -->
-<div class="overlay hide" id="sAddUser">
-  <div class="sheet">
+<!-- ADD/EDIT WARD -->
+<div class="ov hide" id="sWard">
+  <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
-      <button class="nav-btn" onclick="close_('sAddUser')">Cancel</button>
-      <div class="sh-title">Add User</div>
+      <button class="nav-btn" onclick="close_('sWard')">Cancel</button>
+      <div class="sh-title" id="wardShTitle">Add Ward</div>
+      <button class="nav-btn" onclick="submitWard()">Save</button>
+    </div>
+    <div class="sh-body">
+      <div class="fg"><div class="fl">Ward Name</div><input class="fi" id="wardName" placeholder="e.g. Ward 6 Medical"/></div>
+      <div id="wardDelBtn"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT GROUP -->
+<div class="ov hide" id="sGroup">
+  <div class="sh-el">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sGroup')">Cancel</button>
+      <div class="sh-title" id="groupShTitle">Add Group</div>
+      <button class="nav-btn" onclick="submitGroup()">Save</button>
+    </div>
+    <div class="sh-body">
+      <div class="fg"><div class="fl">Group Name</div><input class="fi" id="groupName" placeholder="e.g. Team A"/></div>
+      <div class="fg"><div class="fl">Ward</div><select class="fi" id="groupWardSel"></select></div>
+      <div id="groupDelBtn"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT USER -->
+<div class="ov hide" id="sUser">
+  <div class="sh-el">
+    <div class="sh-handle"></div>
+    <div class="sh-head">
+      <button class="nav-btn" onclick="close_('sUser')">Cancel</button>
+      <div class="sh-title" id="userShTitle">Add User</div>
       <button class="nav-btn" onclick="submitUser()">Save</button>
     </div>
     <div class="sh-body">
@@ -311,18 +380,19 @@
           <option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option>
         </select>
       </div>
-      <div class="fg"><div class="fl">Group</div><div id="uGroupWrap"></div></div>
+      <div class="fg"><div class="fl">Group</div><select class="fi" id="uGroup"></select></div>
+      <div id="userDelBtn"></div>
     </div>
   </div>
 </div>
 
-<!-- SHEET: SCAN CONFIRM -->
-<div class="overlay hide" id="sScan">
-  <div class="sheet">
+<!-- AI SCAN CONFIRM -->
+<div class="ov hide" id="sScan">
+  <div class="sh-el">
     <div class="sh-handle"></div>
     <div class="sh-head">
       <button class="nav-btn" onclick="close_('sScan');openAddCase(false)">Back</button>
-      <div class="sh-title">Confirm Scan Data</div>
+      <div class="sh-title">Confirm Patient Data</div>
       <button class="nav-btn" onclick="useScan()">Use</button>
     </div>
     <div class="sh-body" id="scanBody"></div>
@@ -333,32 +403,43 @@
 <div id="toast"></div>
 
 <script>
-// ============================================================
-// GOOGLE SHEETS CONFIG — replace these with your actual values
-// ============================================================
-const GS_ID  = 'YOUR_SPREADSHEET_ID';   // e.g. '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms'
-const GS_KEY = 'YOUR_API_KEY';           // Google Cloud API key with Sheets scope
-// Set USE_GS = true after configuring above
-const USE_GS = false;
+// ═══════════════════════════════════════════════════════════
+// GOOGLE SHEETS CONFIG
+// ═══════════════════════════════════════════════════════════
+const SHEET_ID = '1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM';
+const APPS_SCRIPT_URL = ''; // Optional: set your Apps Script URL for write operations
+// Google Sheets API key — add your own key here for read, OR deploy Apps Script for full read/write
+const GS_API_KEY = 'YOUR_GOOGLE_API_KEY';
 
-// ============================================================
-// DATABASE — localStorage with optional Google Sheets sync
-// ============================================================
-let DB = { wards:[], groups:[], users:[], cases:[], lastReset:'', sel:{wardId:'',groupId:'',userId:''} };
+// Sheet tab names (create these tabs in your Google Sheet)
+const TABS = { wards:'Wards', groups:'Groups', users:'Users', cases:'Cases' };
 
-function loadDB() {
-  try { const s = localStorage.getItem('ws_db'); if (s) DB = JSON.parse(s); } catch(e){}
-  if (!DB.wards || !DB.wards.length) seed();
+// ═══════════════════════════════════════════════════════════
+// LOCAL DB  (localStorage primary, Sheets sync optional)
+// ═══════════════════════════════════════════════════════════
+let DB = {wards:[],groups:[],users:[],cases:[],lastReset:'',sel:{wId:'',gId:'',uId:''}};
+
+function loadDB(){
+  try{const s=localStorage.getItem('ws5');if(s)DB=JSON.parse(s);}catch(e){}
+  if(!DB.wards||!DB.wards.length)seed();
   dailyReset();
 }
-function save() {
-  localStorage.setItem('ws_db', JSON.stringify(DB));
-  if (USE_GS) pushToSheets();
+function save(){
+  localStorage.setItem('ws5',JSON.stringify(DB));
+  pushSheets(); // fire-and-forget
 }
-function seed() {
-  DB = {
-    wards: [{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'},{id:'w3',name:'ICU'}],
-    groups:[{id:'g1',wId:'w1',name:'Team A'},{id:'g2',wId:'w1',name:'Team B'},{id:'g3',wId:'w2',name:'Surgical I'},{id:'g4',wId:'w3',name:'ICU Team'}],
+async function pushSheets(){
+  // If Apps Script URL is configured, push full DB as JSON
+  if(!APPS_SCRIPT_URL)return;
+  try{
+    await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(DB),headers:{'Content-Type':'application/json'}});
+  }catch(e){}
+}
+
+function seed(){
+  DB={
+    wards:[{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'}],
+    groups:[{id:'g1',wId:'w1',name:'Team A'},{id:'g2',wId:'w1',name:'Team B'},{id:'g3',wId:'w2',name:'Surgical I'}],
     users:[
       {id:'u1',gId:'g1',name:'Dr. Somchai K.',role:'Doctor'},
       {id:'u2',gId:'g1',name:'Nurse Malee P.',role:'Nurse'},
@@ -367,249 +448,469 @@ function seed() {
       {id:'u5',gId:'g2',name:'Nurse Darunee N.',role:'Nurse'}
     ],
     cases:[
-      {id:'c1',gId:'g1',hn:'HN001234',name:'Somjai Rakdee',dx:'T2DM with Hyperglycemia',admit:'2025-04-28',uid:'u1',report:'',round:false,admNote:false,out:false},
-      {id:'c2',gId:'g1',hn:'HN001235',name:'Pranee Srisuk',dx:'Hypertensive Crisis',admit:'2025-05-01',uid:'u2',report:'',round:true,admNote:true,out:false},
-      {id:'c3',gId:'g2',hn:'HN001236',name:'Boonma Intawong',dx:'Community-Acquired Pneumonia',admit:'2025-05-03',uid:'u4',report:'Progress Note',round:false,admNote:false,out:false}
+      {id:'c1',gId:'g1',hn:'HN001234',name:'Somjai Rakdee',dx:'T2DM with Hyperglycemia',admit:'2025-04-28',uid:'u1',report:null,round:false,admNote:false,out:false},
+      {id:'c2',gId:'g1',hn:'HN001235',name:'Pranee Srisuk',dx:'Hypertensive Crisis',admit:'2025-05-01',uid:'u2',report:true,round:true,admNote:true,out:false},
+      {id:'c3',gId:'g2',hn:'HN001236',name:'Boonma Intawong',dx:'Community-Acquired Pneumonia',admit:'2025-05-03',uid:'u4',report:false,round:false,admNote:false,out:false}
     ],
-    lastReset: new Date().toDateString(),
-    sel:{wardId:'',groupId:'',userId:''}
+    lastReset:new Date().toDateString(),
+    sel:{wId:'',gId:'',uId:''}
   };
   save();
 }
-function dailyReset() {
-  const td = new Date().toDateString();
-  if (DB.lastReset !== td) { DB.cases.forEach(c=>{if(!c.out)c.round=false;}); DB.lastReset=td; save(); }
+function dailyReset(){
+  const td=new Date().toDateString();
+  if(DB.lastReset!==td){DB.cases.forEach(c=>{if(!c.out)c.round=false;});DB.lastReset=td;save();}
 }
 
-// Google Sheets push (placeholder)
-async function pushToSheets() {
-  // Implement with Google Sheets API v4 batchUpdate
-  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
-  console.log('[GS] push pending');
+// ═══════════════════════════════════════════════════════════
+// GOOGLE SHEETS READ (public sheet via CSV export trick)
+// Uses gid-based CSV which works without API key on public sheets
+// ═══════════════════════════════════════════════════════════
+async function loadFromSheets(){
+  // We use the public CSV export which works on sheets shared publicly
+  const base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
+  try{
+    const [wR,gR,uR,cR]=await Promise.all([
+      fetch(base+encodeURIComponent(TABS.wards)).then(r=>r.text()),
+      fetch(base+encodeURIComponent(TABS.groups)).then(r=>r.text()),
+      fetch(base+encodeURIComponent(TABS.users)).then(r=>r.text()),
+      fetch(base+encodeURIComponent(TABS.cases)).then(r=>r.text()),
+    ]);
+    const wards=parseCSV(wR);
+    const groups=parseCSV(gR);
+    const users=parseCSV(uR);
+    const cases=parseCSV(cR);
+
+    if(wards.length){
+      DB.wards=wards.map(r=>({id:r.id||uid(),name:r.name||''})).filter(r=>r.name);
+      DB.groups=groups.map(r=>({id:r.id||uid(),wId:r.wId||r.wardId||'',name:r.name||''})).filter(r=>r.name);
+      DB.users=users.map(r=>({id:r.id||uid(),gId:r.gId||r.groupId||'',name:r.name||'',role:r.role||'Nurse'})).filter(r=>r.name);
+      DB.cases=cases.map(r=>({
+        id:r.id||uid(),gId:r.gId||r.groupId||'',hn:r.hn||'',
+        name:r.name||'',dx:r.dx||r.diagnosis||'',admit:r.admit||r.admitDate||'',
+        uid:r.uid||r.userId||'',
+        report:r.report===''||r.report===undefined?null:r.report==='true'?true:r.report==='false'?false:null,
+        round:r.round==='true',admNote:r.admNote==='true'||r.admissionNote==='true',
+        out:r.out==='true'||r.discharged==='true'
+      })).filter(r=>r.hn);
+      save();
+      console.log('[GS] Loaded from Sheets ✓');
+    }
+  }catch(e){console.warn('[GS] Load failed, using localStorage:',e.message);}
 }
 
-// ============================================================
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(lines.length<2)return[];
+  const hdr=csvLine(lines[0]);
+  return lines.slice(1).map(l=>{
+    const vals=csvLine(l);
+    const obj={};
+    hdr.forEach((h,i)=>obj[h.trim()]=vals[i]?vals[i].trim():'');
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+function csvLine(l){
+  const res=[];let cur='',inQ=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur);cur='';}
+    else cur+=c;
+  }
+  res.push(cur);
+  return res;
+}
+
+// ═══════════════════════════════════════════════════════════
 // HELPERS
-// ============================================================
-const uid = () => '_'+Math.random().toString(36).substr(2,9);
-const gW = id => DB.wards.find(x=>x.id===id);
-const gG = id => DB.groups.find(x=>x.id===id);
-const gU = id => DB.users.find(x=>x.id===id);
-const gGbyW = wId => DB.groups.filter(g=>g.wId===wId);
-const gUbyG = gId => DB.users.filter(u=>u.gId===gId);
-const gCbyG = gId => DB.cases.filter(c=>c.gId===gId&&!c.out);
-const gCbyU = uId => DB.cases.filter(c=>c.uid===uId&&!c.out);
-const days = d => { if(!d)return 0; return Math.floor((Date.now()-new Date(d))/86400000); };
-const ini = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
-const esc = s => !s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ═══════════════════════════════════════════════════════════
+const uid=()=>'_'+Math.random().toString(36).substr(2,9);
+const gW=id=>DB.wards.find(x=>x.id===id);
+const gG=id=>DB.groups.find(x=>x.id===id);
+const gU=id=>DB.users.find(x=>x.id===id);
+const gGbyW=wId=>DB.groups.filter(g=>g.wId===wId);
+const gUbyG=gId=>DB.users.filter(u=>u.gId===gId);
+const gCbyG=gId=>DB.cases.filter(c=>c.gId===gId&&!c.out);
+const gCbyU=uId=>DB.cases.filter(c=>c.uid===uId&&!c.out);
+const days=d=>{if(!d)return 0;return Math.floor((Date.now()-new Date(d))/86400000);};
+const ini=n=>n.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+const esc=s=>!s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const colors=['#007AFF','#34C759','#FF9500','#AF52DE','#FF3B30','#5AC8FA','#FF2D55','#FFCC00'];
+function hCol(s){let n=0;for(let i=0;i<s.length;i++)n=(n+s.charCodeAt(i))%colors.length;return colors[n];}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 function open_(id){document.getElementById(id).classList.remove('hide');}
 function close_(id){document.getElementById(id).classList.add('hide');}
 
-// ============================================================
-// TABS
-// ============================================================
-let curTab=0, curGrpFilter='', editId=null, isMy=false, scanD={};
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let curTab=0,curGF='',editId=null,scanD={},editWardId=null,editGroupId=null,editUserId=null,fromLogin=false;
 
-function goTab(i) {
+// ═══════════════════════════════════════════════════════════
+// LOGIN WALL
+// ═══════════════════════════════════════════════════════════
+function renderLoginWall(){
+  // Step 1: wards
+  document.getElementById('lwWardList').innerHTML=DB.wards.map(w=>`
+    <div class="row" onclick="lwSelWard('${w.id}')">
+      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups</div></div>
+      <div class="chev">›</div>
+    </div>`).join('');
+}
+function lwSelWard(wId){
+  DB.sel.wId=wId;
+  const groups=gGbyW(wId);
+  document.getElementById('lwGroupList').innerHTML=groups.map(g=>`
+    <div class="row" onclick="lwSelGroup('${g.id}')">
+      <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users</div></div>
+      <div class="chev">›</div>
+    </div>`).join('');
+  document.getElementById('lwStep1').classList.add('hidden');
+  document.getElementById('lwStep2').classList.remove('hidden');
+  document.getElementById('lwStep2').scrollIntoView({behavior:'smooth'});
+}
+function lwSelGroup(gId){
+  DB.sel.gId=gId;curGF=gId;
+  const users=gUbyG(gId);
+  document.getElementById('lwUserList').innerHTML=users.map(u=>`
+    <div class="row" onclick="lwSelUser('${u.id}')">
+      <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+      <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
+      <div class="chev">›</div>
+    </div>`).join('');
+  document.getElementById('lwStep2').classList.add('hidden');
+  document.getElementById('lwStep3').classList.remove('hidden');
+  document.getElementById('lwStep3').scrollIntoView({behavior:'smooth'});
+}
+function lwSelUser(uId){
+  DB.sel.uId=uId;save();
+  document.getElementById('loginWall').classList.add('hide');
+  renderSetup();updateNav();
+  toast('Welcome, '+gU(uId)?.name+' 👋');
+}
+function lwBack(toStep){
+  [1,2,3].forEach(i=>document.getElementById('lwStep'+i).classList.add('hidden'));
+  document.getElementById('lwStep'+toStep).classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+function goTab(i){
   [0,1,2,3].forEach(n=>{
-    document.getElementById('p'+n).classList.toggle('active',n===i);
-    document.getElementById('t'+n).classList.toggle('active',n===i);
+    document.getElementById('p'+n).classList.toggle('on',n===i);
+    document.getElementById('t'+n).classList.toggle('on',n===i);
   });
-  curTab=i; updateNav();
+  curTab=i;updateNav();
   if(i===1)renderAll();
   if(i===2)renderMy();
   if(i===3)renderStats();
 }
 function updateNav(){
-  const w=gW(DB.sel.wardId),g=gG(DB.sel.groupId),u=gU(DB.sel.userId);
+  const w=gW(DB.sel.wId),g=gG(DB.sel.gId),u=gU(DB.sel.uId);
   const titles=['Setup','All Cases','My Cases','Statistics'];
   document.getElementById('navT').textContent=titles[curTab];
   const sub=document.getElementById('navSub');
   if(w&&g&&u&&curTab>0){sub.textContent=`${w.name} · ${g.name} · ${u.name}`;sub.classList.remove('hidden');}
   else sub.classList.add('hidden');
+  // Change user button in setup
+  document.getElementById('navL').innerHTML='';
+  document.getElementById('navR').innerHTML='';
+  if(curTab===0){
+    document.getElementById('navR').innerHTML=`<button class="nav-btn" onclick="showLoginWall()">Change User</button>`;
+  }
 }
 
-// ============================================================
-// PAGE 1: SETUP
-// ============================================================
+function showLoginWall(){
+  // reset login steps
+  [1,2,3].forEach(i=>document.getElementById('lwStep'+i).classList.add('hidden'));
+  document.getElementById('lwStep1').classList.remove('hidden');
+  renderLoginWall();
+  document.getElementById('loginWall').classList.remove('hide');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAGE 0: SETUP (Manage Wards/Groups/Users)
+// ═══════════════════════════════════════════════════════════
 function renderSetup(){
   // Wards
   document.getElementById('wardList').innerHTML=DB.wards.map(w=>`
     <div class="row" onclick="selWard('${w.id}')">
-      <div class="row-body"><div class="row-title">${esc(w.name)}</div><div class="row-sub">${gGbyW(w.id).length} groups</div></div>
-      ${DB.sel.wardId===w.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
-    </div>`).join('');
+      <div class="rb"><div class="rt">${esc(w.name)}</div><div class="rs">${gGbyW(w.id).length} groups · ${gCbyG(w.id).length} cases</div></div>
+      <button class="nav-btn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditWard('${w.id}')">Edit</button>
+      ${DB.sel.wId===w.id?'<div style="color:var(--blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+    </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No wards yet — add one above</div>';
 
-  if(DB.sel.wardId){
+  if(DB.sel.wId){
     document.getElementById('grpSec').classList.remove('hidden');
-    document.getElementById('groupList').innerHTML=gGbyW(DB.sel.wardId).map(g=>`
+    document.getElementById('groupList').innerHTML=gGbyW(DB.sel.wId).map(g=>`
       <div class="row" onclick="selGroup('${g.id}')">
-        <div class="row-body"><div class="row-title">${esc(g.name)}</div><div class="row-sub">${gUbyG(g.id).length} users · ${gCbyG(g.id).length} active cases</div></div>
-        ${DB.sel.groupId===g.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
-      </div>`).join('');
+        <div class="rb"><div class="rt">${esc(g.name)}</div><div class="rs">${gUbyG(g.id).length} users · ${gCbyG(g.id).length} active cases</div></div>
+        <button class="nav-btn" style="font-size:13px;margin-right:8px" onclick="event.stopPropagation();openEditGroup('${g.id}')">Edit</button>
+        ${DB.sel.gId===g.id?'<div style="color:var(--blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
+      </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No groups yet</div>';
   }
 
-  if(DB.sel.groupId){
+  if(DB.sel.gId){
     document.getElementById('usrSec').classList.remove('hidden');
-    document.getElementById('userList').innerHTML=gUbyG(DB.sel.groupId).map(u=>`
-      <div class="row" onclick="selUser('${u.id}')">
-        <div class="av" style="margin-right:12px">${esc(ini(u.name))}</div>
-        <div class="row-body"><div class="row-title">${esc(u.name)}</div><div class="row-sub">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
-        ${DB.sel.userId===u.id?'<div style="color:var(--ios-blue);font-size:20px">✓</div>':'<div class="chev">›</div>'}
-      </div>`).join('');
+    document.getElementById('userList').innerHTML=gUbyG(DB.sel.gId).map(u=>`
+      <div class="row" onclick="">
+        <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)} · ${gCbyU(u.id).length} cases</div></div>
+        <button class="nav-btn" style="font-size:13px" onclick="openEditUser('${u.id}')">Edit</button>
+      </div>`).join('')||'<div class="row" style="cursor:default;color:var(--txt3);font-size:15px">No users yet</div>';
   }
 }
-function selWard(id){DB.sel.wardId=id;DB.sel.groupId='';DB.sel.userId='';save();renderSetup();document.getElementById('grpSec').scrollIntoView({behavior:'smooth'});}
-function selGroup(id){DB.sel.groupId=id;DB.sel.userId='';curGrpFilter=id;save();renderSetup();document.getElementById('usrSec').scrollIntoView({behavior:'smooth'});}
-function selUser(id){DB.sel.userId=id;save();renderSetup();updateNav();toast('✓ Setup complete — you\'re all set!');}
+function selWard(id){DB.sel.wId=id;DB.sel.gId='';save();renderSetup();document.getElementById('grpSec').scrollIntoView({behavior:'smooth'});}
+function selGroup(id){DB.sel.gId=id;curGF=id;save();renderSetup();document.getElementById('usrSec').scrollIntoView({behavior:'smooth'});}
 
-// ============================================================
-// ADD USER
-// ============================================================
-function openAddUser(){
-  const groups=DB.sel.wardId?gGbyW(DB.sel.wardId):DB.groups;
-  document.getElementById('uGroupWrap').innerHTML=`<select class="fi" id="uGroup">${groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>`;
-  if(DB.sel.groupId){const el=document.getElementById('uGroup');if(el)el.value=DB.sel.groupId;}
+// ═══════════════════════════════════════════════════════════
+// WARD CRUD
+// ═══════════════════════════════════════════════════════════
+function openAddWard(){
+  editWardId=null;
+  document.getElementById('wardShTitle').textContent='Add Ward';
+  document.getElementById('wardName').value='';
+  document.getElementById('wardDelBtn').innerHTML='';
+  open_('sWard');
+}
+function openEditWard(id){
+  editWardId=id;const w=gW(id);
+  document.getElementById('wardShTitle').textContent='Edit Ward';
+  document.getElementById('wardName').value=w?w.name:'';
+  document.getElementById('wardDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delWard('${id}')">Delete Ward</button>`;
+  open_('sWard');
+}
+function submitWard(){
+  const name=document.getElementById('wardName').value.trim();
+  if(!name){toast('Enter a ward name');return;}
+  if(editWardId){const w=gW(editWardId);if(w)w.name=name;toast('Ward updated ✓');}
+  else{DB.wards.push({id:uid(),name});toast('Ward added ✓');}
+  save();close_('sWard');renderSetup();renderLoginWall();
+}
+function delWard(id){
+  if(!confirm('Delete this ward? All groups and users in it will be removed.'))return;
+  DB.wards=DB.wards.filter(w=>w.id!==id);
+  DB.groups=DB.groups.filter(g=>g.wId!==id);
+  const gIds=DB.groups.map(g=>g.id);
+  DB.users=DB.users.filter(u=>gIds.includes(u.gId));
+  if(DB.sel.wId===id){DB.sel.wId='';DB.sel.gId='';DB.sel.uId='';}
+  save();close_('sWard');renderSetup();renderLoginWall();toast('Ward deleted');
+}
+
+// ═══════════════════════════════════════════════════════════
+// GROUP CRUD
+// ═══════════════════════════════════════════════════════════
+function openAddGroup(){
+  editGroupId=null;
+  document.getElementById('groupShTitle').textContent='Add Group';
+  document.getElementById('groupName').value='';
+  document.getElementById('groupWardSel').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${w.id===DB.sel.wId?' selected':''}>${esc(w.name)}</option>`).join('');
+  document.getElementById('groupDelBtn').innerHTML='';
+  open_('sGroup');
+}
+function openEditGroup(id){
+  editGroupId=id;const g=gG(id);
+  document.getElementById('groupShTitle').textContent='Edit Group';
+  document.getElementById('groupName').value=g?g.name:'';
+  document.getElementById('groupWardSel').innerHTML=DB.wards.map(w=>`<option value="${w.id}"${g&&w.id===g.wId?' selected':''}>${esc(w.name)}</option>`).join('');
+  document.getElementById('groupDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delGroup('${id}')">Delete Group</button>`;
+  open_('sGroup');
+}
+function submitGroup(){
+  const name=document.getElementById('groupName').value.trim();
+  const wId=document.getElementById('groupWardSel').value;
+  if(!name){toast('Enter a group name');return;}
+  if(editGroupId){const g=gG(editGroupId);if(g){g.name=name;g.wId=wId;}toast('Group updated ✓');}
+  else{DB.groups.push({id:uid(),wId,name});toast('Group added ✓');}
+  save();close_('sGroup');renderSetup();renderLoginWall();
+}
+function delGroup(id){
+  if(!confirm('Delete this group?'))return;
+  DB.groups=DB.groups.filter(g=>g.id!==id);
+  DB.users=DB.users.filter(u=>u.gId!==id);
+  if(DB.sel.gId===id){DB.sel.gId='';DB.sel.uId='';}
+  save();close_('sGroup');renderSetup();renderLoginWall();toast('Group deleted');
+}
+
+// ═══════════════════════════════════════════════════════════
+// USER CRUD
+// ═══════════════════════════════════════════════════════════
+function openAddUser(fromLW=false){
+  editUserId=null;fromLogin=fromLW;
+  document.getElementById('userShTitle').textContent='Add User';
   document.getElementById('uName').value='';
-  open_('sAddUser');
+  const grps=DB.sel.gId?gGbyW(DB.sel.wId):DB.groups;
+  document.getElementById('uGroup').innerHTML=grps.map(g=>`<option value="${g.id}"${g.id===DB.sel.gId?' selected':''}>${esc(g.name)}</option>`).join('');
+  document.getElementById('userDelBtn').innerHTML='';
+  open_('sUser');
+}
+function openEditUser(id){
+  editUserId=id;fromLogin=false;const u=gU(id);
+  document.getElementById('userShTitle').textContent='Edit User';
+  document.getElementById('uName').value=u?u.name:'';
+  document.getElementById('uRole').value=u?u.role:'Nurse';
+  const grps=DB.groups;
+  document.getElementById('uGroup').innerHTML=grps.map(g=>`<option value="${g.id}"${u&&g.id===u.gId?' selected':''}>${esc(g.name)}</option>`).join('');
+  document.getElementById('userDelBtn').innerHTML=`<button class="btn br" style="margin-top:8px" onclick="delUser('${id}')">Delete User</button>`;
+  open_('sUser');
 }
 function submitUser(){
   const name=document.getElementById('uName').value.trim();
   const role=document.getElementById('uRole').value;
   const gId=document.getElementById('uGroup').value;
-  if(!name){toast('Please enter a name');return;}
-  DB.users.push({id:uid(),gId,name,role});
-  save();close_('sAddUser');renderSetup();toast('User added ✓');
+  if(!name){toast('Enter a name');return;}
+  if(editUserId){const u=gU(editUserId);if(u){u.name=name;u.role=role;u.gId=gId;}toast('User updated ✓');}
+  else{const nu={id:uid(),gId,name,role};DB.users.push(nu);
+    if(fromLogin){
+      // Refresh login wall user list
+      close_('sUser');save();renderSetup();
+      // Re-trigger group selection to refresh user list in login
+      DB.sel.gId=gId;lwSelGroup(gId);return;
+    }
+    toast('User added ✓');
+  }
+  save();close_('sUser');renderSetup();renderLoginWall();
+}
+function delUser(id){
+  if(!confirm('Delete this user?'))return;
+  DB.users=DB.users.filter(u=>u.id!==id);
+  if(DB.sel.uId===id)DB.sel.uId='';
+  save();close_('sUser');renderSetup();renderLoginWall();toast('User deleted');
 }
 
-// ============================================================
-// RENDER CASE CARD
-// ============================================================
+// ═══════════════════════════════════════════════════════════
+// CASE CARD RENDERER
+// ═══════════════════════════════════════════════════════════
 function caseCard(c){
   const u=gU(c.uid);
   const d=days(c.admit);
   const dayTxt=d===0?'Today':`Day ${d}`;
-  return `<div class="case-card" onclick="openDetail('${c.id}')">
-    <div class="cc-head">
-      <div class="cc-body">
+  // report badge: null=not set, true=will write, false=won't write
+  let rptBadge='';
+  if(c.report===true) rptBadge='<span class="badge b-green">📝 Writing Report</span>';
+  else if(c.report===false) rptBadge='<span class="badge b-red">✗ No Report</span>';
+  return `<div class="cc" onclick="openDetail('${c.id}')">
+    <div class="cc-h">
+      <div class="cc-b">
         <div class="cc-hn">${esc(c.hn)}</div>
-        <div class="cc-name">${esc(c.name)}</div>
-        <div class="cc-diag">${esc(c.dx)}</div>
+        <div class="cc-n">${esc(c.name)}</div>
+        <div class="cc-d">${esc(c.dx)}</div>
       </div>
       <div class="cc-day">${dayTxt}</div>
     </div>
-    <div class="cc-foot">
+    <div class="cc-f">
       ${c.round?'<span class="badge b-green">✓ Rounded</span>':''}
-      ${c.admNote?'<span class="badge b-blue">📝 Adm. Note</span>':''}
-      ${c.report?`<span class="badge b-purple">📄 ${esc(c.report)}</span>`:''}
+      ${c.admNote?'<span class="badge b-blue">📋 Adm.Note</span>':''}
+      ${rptBadge}
       ${u?`<span class="badge b-gray" style="margin-left:auto">👤 ${esc(u.name)}</span>`:''}
     </div>
   </div>`;
 }
 
-// ============================================================
-// PAGE 2: ALL CASES
-// ============================================================
+// ═══════════════════════════════════════════════════════════
+// PAGE 1: ALL CASES
+// ═══════════════════════════════════════════════════════════
 function renderAll(){
-  if(!DB.sel.groupId){document.getElementById('allList').innerHTML=emptySetup();document.getElementById('grpSeg').innerHTML='';return;}
-  const wGroups=gGbyW(DB.sel.wardId);
-  if(!curGrpFilter||!gG(curGrpFilter))curGrpFilter=DB.sel.groupId;
-  document.getElementById('grpSeg').innerHTML=wGroups.map(g=>`<button class="seg-btn${curGrpFilter===g.id?' on':''}" onclick="setGF('${g.id}')">${esc(g.name)}</button>`).join('');
-  const cases=gCbyG(curGrpFilter);
+  if(!DB.sel.gId){document.getElementById('allList').innerHTML=emptySetup();document.getElementById('grpSeg').innerHTML='';return;}
+  const wGs=gGbyW(DB.sel.wId);
+  if(!curGF||!gG(curGF))curGF=DB.sel.gId;
+  document.getElementById('grpSeg').innerHTML=wGs.map(g=>`<button class="seg-b${curGF===g.id?' on':''}" onclick="setGF('${g.id}')">${esc(g.name)}</button>`).join('');
+  const cases=gCbyG(curGF);
   document.getElementById('allList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Active Cases</div><div class="empty-s">Tap + to add a case</div></div>`;
 }
-function setGF(id){curGrpFilter=id;renderAll();}
+function setGF(id){curGF=id;renderAll();}
 
-// ============================================================
-// PAGE 3: MY CASES
-// ============================================================
+// ═══════════════════════════════════════════════════════════
+// PAGE 2: MY CASES
+// ═══════════════════════════════════════════════════════════
 function renderMy(){
-  if(!DB.sel.userId){document.getElementById('myList').innerHTML=emptySetup();return;}
-  const cases=gCbyU(DB.sel.userId);
-  document.getElementById('myList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Cases Assigned</div><div class="empty-s">Your assigned cases appear here</div></div>`;
+  if(!DB.sel.uId){document.getElementById('myList').innerHTML=emptySetup();return;}
+  const cases=gCbyU(DB.sel.uId);
+  document.getElementById('myList').innerHTML=cases.length?cases.map(caseCard).join(''):`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">No Cases Assigned</div><div class="empty-s">Cases assigned to you appear here</div></div>`;
 }
-function emptySetup(){return`<div class="empty"><div class="empty-i">⚙️</div><div class="empty-t">Setup Required</div><div class="empty-s">Configure ward, group & user in Setup tab</div></div>`;}
+function emptySetup(){return`<div class="empty"><div class="empty-i">⚙️</div><div class="empty-t">Setup Required</div><div class="empty-s">Select a ward, group &amp; user first</div></div>`;}
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 // CASE DETAIL
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 function openDetail(id){
   const c=DB.cases.find(x=>x.id===id);if(!c)return;
   editId=id;
   document.getElementById('detTitle').textContent=c.hn;
-  const u=gU(c.uid), g=gG(c.gId), d=days(c.admit);
+  const g=gG(c.gId),d=days(c.admit);
   const users=g?gUbyG(g.id):[];
+
   document.getElementById('detBody').innerHTML=`
-    <div class="card" style="margin:0 0 16px">
-      <div class="row" style="cursor:default"><div class="row-body">
-        <div style="font-size:12px;font-weight:600;color:var(--ios-blue);margin-bottom:2px">${esc(c.hn)}</div>
+    <div class="inline-card" style="margin-bottom:16px">
+      <div class="row-nd"><div class="rb">
+        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:2px">${esc(c.hn)}</div>
         <div style="font-size:20px;font-weight:700">${esc(c.name)}</div>
-        <div style="font-size:14px;color:var(--text3);margin-top:3px">${esc(c.dx)}</div>
+        <div style="font-size:14px;color:var(--txt3);margin-top:3px">${esc(c.dx)}</div>
       </div></div>
-      <div class="row" style="cursor:default"><div class="row-body"><div class="row-sub">Admit Date</div><div style="font-size:15px">${esc(c.admit)} <span style="color:var(--ios-orange);font-size:13px">(Day ${d})</span></div></div></div>
-      <div class="row" style="cursor:default"><div class="row-body"><div class="row-sub">Group</div><div style="font-size:15px">${esc(g?g.name:'—')}</div></div></div>
+      <div class="row-nd"><div class="rb"><div style="font-size:12px;color:var(--txt3)">Admit Date</div><div style="font-size:15px;margin-top:2px">${esc(c.admit)} <span style="color:var(--orange);font-size:13px">(Day ${d})</span></div></div></div>
+      <div class="row-nd"><div class="rb"><div style="font-size:12px;color:var(--txt3)">Group</div><div style="font-size:15px;margin-top:2px">${esc(g?g.name:'—')}</div></div></div>
     </div>
 
-    <div class="sh" style="padding-top:4px">Daily Checklist</div>
-    <div class="card inline-check-wrap" style="margin:0 0 16px">
+    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Daily Checklist</div>
+    <div class="inline-card" style="margin-bottom:16px">
       <div class="ck-row">
-        <div class="ck${c.round?' on':''}" id="dRound" onclick="toggleF('${c.id}','round')"></div>
-        <div class="ck-lbl">Round</div><div class="ck-note">Resets daily at midnight</div>
+        <div class="ck${c.round?' on':''}" id="dRound" onclick="tgl('${c.id}','round')"></div>
+        <div class="ck-lbl">Round</div><div class="ck-note">Resets daily</div>
       </div>
       <div class="ck-row">
-        <div class="ck${c.admNote?' on':''}" id="dAdmNote" onclick="toggleF('${c.id}','admNote')"></div>
+        <div class="ck${c.admNote?' on':''}" id="dAdm" onclick="tgl('${c.id}','admNote')"></div>
         <div class="ck-lbl">Admission Note</div><div class="ck-note">Persistent</div>
       </div>
     </div>
 
-    <div class="sh" style="padding-top:4px">Report</div>
-    <div class="card" style="margin:0 0 16px">
-      <div class="row" style="cursor:default">
-        <div class="row-body"><div class="row-sub">Select Report Type</div></div>
-        <select class="fi" style="width:auto;margin-left:8px;font-size:15px" id="rptSel" onchange="setReport('${c.id}',this.value)">
-          <option value="">— None —</option>
-          <option value="Discharge Summary">Discharge Summary</option>
-          <option value="Progress Note">Progress Note</option>
-          <option value="Operative Note">Operative Note</option>
-          <option value="Consult Note">Consult Note</option>
-          <option value="Death Summary">Death Summary</option>
-        </select>
+    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Report Plan</div>
+    <div class="inline-card" style="margin-bottom:16px">
+      <div class="ck-row" style="gap:10px">
+        <div style="font-size:15px;flex:1">Will write report for this case?</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="setReport('${c.id}',true)" id="rptYes" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===true?'var(--green)':' var(--gray5)'};color:${c.report===true?'#fff':'var(--txt3)'}">Yes</button>
+          <button onclick="setReport('${c.id}',false)" id="rptNo" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===false?'var(--red)':'var(--gray5)'};color:${c.report===false?'#fff':'var(--txt3)'}">No</button>
+          <button onclick="setReport('${c.id}',null)" id="rptNone" style="padding:7px 14px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:${c.report===null?'var(--gray)':'var(--gray5)'};color:${c.report===null?'#fff':'var(--txt3)'}">—</button>
+        </div>
       </div>
     </div>
 
-    <div class="sh" style="padding-top:4px">Assign To</div>
-    <div class="card" style="margin:0 0 16px">
-      <div class="row" style="cursor:default">
-        <div class="row-body"><div class="row-sub">Assigned User</div></div>
-        <select class="fi" style="width:auto;margin-left:8px;font-size:15px" id="asnSel" onchange="reassign('${c.id}',this.value)">
+    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Assign To</div>
+    <div class="inline-card" style="margin-bottom:16px">
+      <div class="row-nd">
+        <div class="rb" style="font-size:15px">Assigned User</div>
+        <select class="fi" style="width:auto;font-size:15px;margin-left:8px" onchange="reassign('${c.id}',this.value)">
           ${users.map(u=>`<option value="${u.id}"${c.uid===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
         </select>
       </div>
     </div>
 
-    <div class="sh" style="padding-top:4px">Actions</div>
-    <button class="btn btn-r" onclick="discharge('${c.id}')">🔴 Discharge Patient</button>
-    <div style="height:20px"></div>
+    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;margin:0 0 8px 4px">Actions</div>
+    <button class="btn br" onclick="discharge('${c.id}')">🔴 Discharge Patient</button>
+    <div style="height:24px"></div>
   `;
-  setTimeout(()=>{
-    const rs=document.getElementById('rptSel');if(rs)rs.value=c.report||'';
-  },50);
   open_('sCaseDetail');
 }
 
-function toggleF(cId,field){
+function tgl(cId,field){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
   c[field]=!c[field];save();
-  const elId=field==='round'?'dRound':'dAdmNote';
-  const el=document.getElementById(elId);
+  const el=document.getElementById(field==='round'?'dRound':'dAdm');
   if(el)el.classList.toggle('on',c[field]);
   refresh();
   toast(c[field]?(field==='round'?'✓ Rounded':'✓ Adm. Note done'):(field==='round'?'Round cleared':'Adm. Note cleared'));
 }
 function setReport(cId,val){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.report=val;save();refresh();toast(val?`Report: ${val}`:'Report cleared');
+  c.report=val;save();refresh();
+  // Update button styles inline
+  const yb=document.getElementById('rptYes'),nb=document.getElementById('rptNo'),xb=document.getElementById('rptNone');
+  if(yb){yb.style.background=val===true?'var(--green)':'var(--gray5)';yb.style.color=val===true?'#fff':'var(--txt3)';}
+  if(nb){nb.style.background=val===false?'var(--red)':'var(--gray5)';nb.style.color=val===false?'#fff':'var(--txt3)';}
+  if(xb){xb.style.background=val===null?'var(--gray)':'var(--gray5)';xb.style.color=val===null?'#fff':'var(--txt3)';}
+  toast(val===true?'📝 Will write report':val===false?'✗ No report':'Report decision cleared');
 }
 function reassign(cId,uId){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
@@ -623,29 +924,29 @@ function discharge(cId){
 function openEditFromDetail(){close_('sCaseDetail');openAddCase(false,editId);}
 function refresh(){if(curTab===1)renderAll();if(curTab===2)renderMy();if(curTab===3)renderStats();}
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 // ADD / EDIT CASE
-// ============================================================
-function openAddCase(forMy=false, eId=null){
-  isMy=forMy; editId=eId;
+// ═══════════════════════════════════════════════════════════
+function openAddCase(forMy=false,eId=null){
+  editId=eId;
   const c=eId?DB.cases.find(x=>x.id===eId):null;
   document.getElementById('addCaseTitle').textContent=eId?'Edit Case':'New Case';
-  const groups=DB.sel.wardId?gGbyW(DB.sel.wardId):DB.groups;
-  const defaultGid=c?c.gId:(DB.sel.groupId||groups[0]?.id||'');
-  const users=gUbyG(defaultGid);
+  const groups=DB.sel.wId?gGbyW(DB.sel.wId):DB.groups;
+  const defGid=c?c.gId:(DB.sel.gId||groups[0]?.id||'');
+  const users=gUbyG(defGid);
   document.getElementById('addCaseBody').innerHTML=`
     ${!eId?`<div style="background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:16px">
       <div class="ai-pill">✨ AI Scan</div>
-      <div style="font-size:13px;color:var(--text3);margin:6px 0 10px">Photograph patient wristband/card to auto-fill HN & Name</div>
-      <button class="btn btn-s" style="padding:11px" onclick="document.getElementById('cameraInput').click()">📷 Scan Patient Info</button>
+      <div style="font-size:13px;color:var(--txt3);margin:6px 0 10px">Photograph patient wristband or card to auto-fill HN &amp; Name</div>
+      <button class="btn bs" style="padding:11px" onclick="document.getElementById('cameraInput').click()">📷 Scan Patient Info</button>
     </div>`:''}
-    <div class="fg"><div class="fl">HN (Hospital Number) *</div><input class="fi" id="fHN" placeholder="e.g. HN001234" value="${esc(c?.hn||'')}"/></div>
+    <div class="fg"><div class="fl">HN *</div><input class="fi" id="fHN" placeholder="e.g. HN001234" value="${esc(c?.hn||'')}"/></div>
     <div class="fg"><div class="fl">Patient Name *</div><input class="fi" id="fName" placeholder="Full name" value="${esc(c?.name||'')}"/></div>
     <div class="fg"><div class="fl">Diagnosis *</div><input class="fi" id="fDx" placeholder="Primary diagnosis" value="${esc(c?.dx||'')}"/></div>
     <div class="fg"><div class="fl">Admit Date *</div><input class="fi" type="date" id="fAdmit" value="${c?.admit||new Date().toISOString().split('T')[0]}"/></div>
     <div class="fg"><div class="fl">Group</div>
       <select class="fi" id="fGroup" onchange="refreshCaseUsers()">
-        ${groups.map(g=>`<option value="${g.id}"${defaultGid===g.id?' selected':''}>${esc(g.name)}</option>`).join('')}
+        ${groups.map(g=>`<option value="${g.id}"${defGid===g.id?' selected':''}>${esc(g.name)}</option>`).join('')}
       </select>
     </div>
     <div class="fg"><div class="fl">Assign To</div>
@@ -654,20 +955,19 @@ function openAddCase(forMy=false, eId=null){
       </select>
     </div>
     <div class="fg"><div class="fl">Admission Note</div>
-      <div class="card inline-check-wrap">
+      <div class="inline-card">
         <div class="ck-row"><div class="ck${c?.admNote?' on':''}" id="fAdmNote" onclick="this.classList.toggle('on')"></div><div class="ck-lbl">Admission Note Done</div></div>
       </div>
     </div>
-    ${eId?`<button class="btn btn-r" onclick="delCase('${eId}')">Delete Case</button>`:''}
+    ${eId?`<button class="btn br" style="margin-top:4px" onclick="delCase('${eId}')">Delete Case</button>`:''}
     <div style="height:16px"></div>
   `;
   open_('sAddCase');
 }
 function refreshCaseUsers(){
   const gId=document.getElementById('fGroup').value;
-  const users=gUbyG(gId);
   const el=document.getElementById('fUser');
-  if(el)el.innerHTML=users.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  if(el)el.innerHTML=gUbyG(gId).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
 }
 function submitCase(){
   const hn=document.getElementById('fHN').value.trim();
@@ -682,8 +982,8 @@ function submitCase(){
     const c=DB.cases.find(x=>x.id===editId);
     if(c){c.hn=hn;c.name=name;c.dx=dx;c.admit=admit;c.gId=gId;c.uid=uId;c.admNote=admNote;}
     toast('Case updated ✓');
-  } else {
-    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:'',round:false,admNote,out:false});
+  }else{
+    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:null,round:false,admNote,out:false});
     toast('Case added ✓');
   }
   save();close_('sAddCase');refresh();
@@ -694,48 +994,37 @@ function delCase(id){
   save();close_('sAddCase');refresh();toast('Case deleted');
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 // AI SCAN
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 async function onCapture(e){
   const file=e.target.files[0];if(!file)return;
-  e.target.value='';
-  close_('sAddCase');
-  toast('🔍 Scanning with AI…');
+  e.target.value='';close_('sAddCase');toast('🔍 Scanning with AI…');
   const reader=new FileReader();
   reader.onload=async(ev)=>{
     const b64=ev.target.result.split(',')[1];
     try{
       const res=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
-          max_tokens:500,
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
           messages:[{role:'user',content:[
             {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
-            {type:'text',text:'Extract patient info from this medical label/wristband image. Return ONLY a valid JSON object with exactly two keys: "hn" (hospital number/patient ID) and "name" (full patient name). If a value cannot be found, use empty string. No markdown, no explanation.'}
-          ]}]
-        })
+            {type:'text',text:'Extract patient info from this medical label/wristband. Return ONLY a JSON object with keys "hn" (hospital number/ID) and "name" (full patient name). Empty string if not found. No markdown.'}
+          ]}]})
       });
       const data=await res.json();
       let txt=data.content?.[0]?.text||'{}';
       let parsed={};
-      try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(ex){}
-      scanD=parsed;
-      showScanConfirm(parsed);
-    }catch(err){
-      console.error(err);
-      toast('Scan failed — enter data manually');
-      openAddCase(false);
-    }
+      try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{}
+      scanD=parsed;showScanConfirm(parsed);
+    }catch(err){toast('Scan failed — enter manually');openAddCase(false);}
   };
   reader.readAsDataURL(file);
 }
 function showScanConfirm(d){
   document.getElementById('scanBody').innerHTML=`
     <div class="ai-pill">✨ AI Extracted</div>
-    <p style="font-size:13px;color:var(--text3);margin:8px 0 16px">Review and correct before proceeding. Remaining fields will be filled next.</p>
+    <p style="font-size:13px;color:var(--txt3);margin:8px 0 16px">Confirm and edit, then tap Use to continue.</p>
     <div class="fg"><div class="fl">HN</div><input class="fi" id="scHN" value="${esc(d.hn||'')}" placeholder="Hospital Number"/></div>
     <div class="fg"><div class="fl">Patient Name</div><input class="fi" id="scName" value="${esc(d.name||'')}" placeholder="Full Name"/></div>
   `;
@@ -744,69 +1033,129 @@ function showScanConfirm(d){
 function useScan(){
   scanD.hn=document.getElementById('scHN').value.trim();
   scanD.name=document.getElementById('scName').value.trim();
-  close_('sScan');
-  openAddCase(false);
+  close_('sScan');openAddCase(false);
   setTimeout(()=>{
     const h=document.getElementById('fHN'),n=document.getElementById('fName');
-    if(h)h.value=scanD.hn||'';
-    if(n)n.value=scanD.name||'';
+    if(h)h.value=scanD.hn||'';if(n)n.value=scanD.name||'';
   },120);
 }
 
-// ============================================================
-// PAGE 4: STATS
-// ============================================================
+// ═══════════════════════════════════════════════════════════
+// PAGE 3: STATS
+// ═══════════════════════════════════════════════════════════
 function renderStats(){
   const el=document.getElementById('statsBody');
-  if(!DB.sel.wardId){el.innerHTML=emptySetup();return;}
-  const wGroups=gGbyW(DB.sel.wardId);
+  if(!DB.sel.wId){el.innerHTML=emptySetup();return;}
+  const wGs=gGbyW(DB.sel.wId);
   let html='';
-  wGroups.forEach(g=>{
+  wGs.forEach(g=>{
     const cases=gCbyG(g.id);
     const users=gUbyG(g.id);
-    const rptCnt=cases.filter(c=>c.report).length;
-    const rndCnt=cases.filter(c=>c.round).length;
-    html+=`<div class="sh">${esc(g.name)}</div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-n">${cases.length}</div><div class="stat-l">Active Cases</div></div>
-      <div class="stat-card"><div class="stat-n">${rptCnt}</div><div class="stat-l">Reports Selected</div></div>
-      <div class="stat-card"><div class="stat-n">${rndCnt}</div><div class="stat-l">Rounded Today</div></div>
-      <div class="stat-card"><div class="stat-n">${users.length}</div><div class="stat-l">Team Members</div></div>
+    const rptYes=cases.filter(c=>c.report===true).length;
+    const rptNo=cases.filter(c=>c.report===false).length;
+    const rnd=cases.filter(c=>c.round).length;
+    html+=`<div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:20px 32px 8px">${esc(g.name)}</div>
+    <div class="sg">
+      <div class="sc"><div class="sn">${cases.length}</div><div class="sl">Active Cases</div></div>
+      <div class="sc"><div class="sn">${rnd}</div><div class="sl">Rounded Today</div></div>
+      <div class="sc"><div class="sn" style="color:var(--green)">${rptYes}</div><div class="sl">Writing Report</div></div>
+      <div class="sc"><div class="sn" style="color:var(--red)">${rptNo}</div><div class="sl">No Report</div></div>
     </div>
-    <div class="sh" style="padding-top:12px">Per Member</div>
+    <div style="font-size:13px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px;padding:14px 32px 8px">Per Member</div>
     <div class="card" style="margin-bottom:8px">
-      ${users.map(u=>{
+      ${users.length?users.map(u=>{
         const uc=cases.filter(c=>c.uid===u.id);
-        const ur=uc.filter(c=>c.report);
-        return `<div class="row" style="cursor:default">
-          <div class="av" style="margin-right:12px;background:${hashColor(u.name)}">${esc(ini(u.name))}</div>
-          <div class="row-body"><div class="row-title">${esc(u.name)}</div><div class="row-sub">${esc(u.role)}</div></div>
+        const ur=uc.filter(c=>c.report===true).length;
+        const un=uc.filter(c=>c.report===false).length;
+        return`<div class="row-nd">
+          <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
+          <div class="rb"><div style="font-size:16px;font-weight:600">${esc(u.name)}</div><div style="font-size:13px;color:var(--txt3);margin-top:1px">${esc(u.role)}</div></div>
           <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:22px;font-weight:700;color:var(--ios-blue)">${uc.length}</div>
-            <div style="font-size:11px;color:var(--text3)">cases</div>
-            ${ur.length?`<div style="background:rgba(175,82,222,.12);color:var(--ios-purple);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:3px">${ur.length} rpt</div>`:''}
+            <div style="font-size:24px;font-weight:700;color:var(--blue)">${uc.length}</div>
+            <div style="font-size:11px;color:var(--txt3)">cases</div>
+            <div style="display:flex;gap:4px;margin-top:3px;justify-content:flex-end">
+              ${ur?`<span style="background:rgba(52,199,89,.15);color:var(--green);padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600">${ur} rpt</span>`:''}
+              ${un?`<span style="background:rgba(255,59,48,.12);color:var(--red);padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600">${un} no</span>`:''}
+            </div>
           </div>
         </div>`;
-      }).join('')}
+      }).join(''):'<div class="row-nd" style="color:var(--txt3);font-size:15px">No users in this group</div>'}
     </div>`;
   });
   el.innerHTML=html;
 }
-function hashColor(s){const h=[`#007AFF`,`#34C759`,`#FF9500`,`#AF52DE`,`#FF3B30`,`#5AC8FA`,`#FF2D55`];let n=0;for(let i=0;i<s.length;i++)n=(n+s.charCodeAt(i))%h.length;return h[n];}
 
-// ============================================================
-// CLOSE ON BACKDROP
-// ============================================================
-document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hide');});});
+// ═══════════════════════════════════════════════════════════
+// CLOSE ON BACKDROP TAP
+// ═══════════════════════════════════════════════════════════
+document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hide');});});
 
-// ============================================================
+// ═══════════════════════════════════════════════════════════
 // INIT
-// ============================================================
-loadDB();
-renderSetup();
-updateNav();
-if(DB.sel.wardId)document.getElementById('grpSec').classList.remove('hidden');
-if(DB.sel.groupId)document.getElementById('usrSec').classList.remove('hidden');
+// ═══════════════════════════════════════════════════════════
+async function init(){
+  loadDB();
+  // Try loading from Sheets (public CSV, no auth needed for public sheets)
+  await loadFromSheets();
+  renderLoginWall();
+  renderSetup();
+  if(DB.sel.wId)document.getElementById('grpSec').classList.remove('hidden');
+  if(DB.sel.gId)document.getElementById('usrSec').classList.remove('hidden');
+  // If user already logged in, skip login wall
+  if(DB.sel.uId){
+    document.getElementById('loginWall').classList.add('hide');
+    updateNav();
+  }
+}
+init();
 </script>
+
+<!--
+════════════════════════════════════════════════════════════
+  GOOGLE SHEETS SETUP GUIDE
+════════════════════════════════════════════════════════════
+
+1. Open your Google Sheet:
+   https://docs.google.com/spreadsheets/d/1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM/
+
+2. Create 4 tabs named EXACTLY:
+   • Wards   → columns: id, name
+   • Groups  → columns: id, wId, name
+   • Users   → columns: id, gId, name, role
+   • Cases   → columns: id, gId, hn, name, dx, admit, uid, report, round, admNote, out
+
+3. Make the sheet PUBLIC (Share → Anyone with link → Viewer)
+   This allows the CSV export to work without an API key.
+
+4. The app reads from Sheets on load automatically.
+   For WRITE back to Sheets, deploy an Apps Script:
+   a. Extensions → Apps Script
+   b. Paste the doPost() handler below
+   c. Deploy → New deployment → Web App → Execute as Me → Anyone
+   d. Copy the URL and set APPS_SCRIPT_URL at the top of this file
+
+   // Apps Script doPost handler:
+   // function doPost(e) {
+   //   const db = JSON.parse(e.postData.contents);
+   //   const ss = SpreadsheetApp.getActiveSpreadsheet();
+   //   writeSheet(ss, 'Wards',  db.wards,  ['id','name']);
+   //   writeSheet(ss, 'Groups', db.groups, ['id','wId','name']);
+   //   writeSheet(ss, 'Users',  db.users,  ['id','gId','name','role']);
+   //   writeSheet(ss, 'Cases',  db.cases,  ['id','gId','hn','name','dx','admit','uid','report','round','admNote','out']);
+   //   return ContentService.createTextOutput('ok');
+   // }
+   // function writeSheet(ss, name, data, cols) {
+   //   const sh = ss.getSheetByName(name);
+   //   sh.clearContents();
+   //   sh.appendRow(cols);
+   //   data.forEach(r => sh.appendRow(cols.map(c => r[c] !== undefined ? r[c] : '')));
+   // }
+
+5. GitHub Pages hosting:
+   - Save this file as index.html
+   - Push to GitHub repo
+   - Settings → Pages → Deploy from main branch
+════════════════════════════════════════════════════════════
+-->
 </body>
 </html>
