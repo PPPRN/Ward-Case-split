@@ -457,7 +457,7 @@ async function flushQueue(){
   try {
     // Execute ops sequentially to avoid race conditions
     for(const op of ops){
-      await gsPost(op);
+      await gsGet(op.action, op);
     }
     setSyncIndicator('ok');
   } catch(err) {
@@ -470,17 +470,16 @@ async function flushQueue(){
   _syncing = false;
 }
 
-async function gsPost(payload){
+// ── All writes use GET params — bypasses Safari CORS/OPTIONS/405 entirely ──
+async function gsGet(action, payload){
   if(!APPS_SCRIPT_URL) return;
   const actingUser = DB.users.find(u=>u.id===DB.sel.uId)?.name || 'unknown';
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({...payload, actingUser})
-  });
-  const json = await res.json();
-  if(!json.ok) throw new Error(json.error || 'GS error');
-  return json;
+  const body = encodeURIComponent(JSON.stringify({...payload, actingUser}));
+  const url = APPS_SCRIPT_URL + '?action=' + action + '&payload=' + body;
+  const res = await fetch(url, {method:'GET', redirect:'follow'});
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'GS error');
+  return data;
 }
 
 // ── Sync indicator in nav ───────────────────────────────────────
@@ -496,7 +495,34 @@ function setSyncIndicator(state){
 function gsUpsert(table, record){ queueOp({action:'UPSERT', table, record}); }
 function gsPatch(table, id, fields){ queueOp({action:'PATCH', table, id, fields}); }
 function gsDelete(table, id){ queueOp({action:'DELETE', table, id}); }
-function gsFullSync(){ queueOp({action:'FULL_SYNC', wards:DB.wards, groups:DB.groups, users:DB.users, cases:DB.cases}); }
+// gsFullSync sends tables one at a time to stay within URL length limits
+async function gsFullSync(){
+  if(!APPS_SCRIPT_URL){ console.warn('[GS] No APPS_SCRIPT_URL set'); return; }
+  setSyncIndicator('syncing');
+  try {
+    // Send each table as a separate UPSERT batch via FULL_SYNC action split into chunks
+    // First sync structure (small), then cases (potentially larger, chunked)
+    await gsGet('FULL_SYNC', {
+      wards:  DB.wards,
+      groups: DB.groups,
+      users:  DB.users,
+      cases:  DB.cases.slice(0, 50)  // first 50
+    });
+    // If more than 50 cases, upsert remaining individually
+    if(DB.cases.length > 50){
+      for(const c of DB.cases.slice(50)){
+        await gsGet('UPSERT', {table:'Cases', record:c});
+      }
+    }
+    setSyncIndicator('ok');
+    toast('✓ Full sync to Sheets complete');
+    console.log('[GS] Full sync done — ' + DB.cases.length + ' cases');
+  } catch(err) {
+    setSyncIndicator('error');
+    toast('Sync failed: ' + err.message);
+    console.error('[GS] Full sync failed:', err);
+  }
+}
 function seed(){
   DB={
     wards:[{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'}],
@@ -532,7 +558,7 @@ async function loadFromSheets(){
   // ── Method 1: Apps Script GET (preferred when URL is set) ──
   if(APPS_SCRIPT_URL){
     try{
-      const res = await fetch(APPS_SCRIPT_URL + '?action=read', {method:'GET'});
+      const res = await fetch(APPS_SCRIPT_URL + '?action=READ', {method:'GET', redirect:'follow'});
       const json = await res.json();
       if(json.ok && json.data){
         applyRemoteData(json.data);
