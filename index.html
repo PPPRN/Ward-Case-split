@@ -1015,61 +1015,154 @@ function delGroup(id){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// USER CRUD
+// USER CRUD  — cascading ward→team selector with multi-assignment
 // ═══════════════════════════════════════════════════════════════
+
+// _uAssignments: [{wardId, groupId}] — list of ward+team assignments for new user
+let _uAssignments = [];
+
 function openAddUser(fromManage=false){
   eUserId=null;
+  _uAssignments = DB.sel.gId ? [{wardId:DB.sel.wId, groupId:DB.sel.gId}] : [];
   document.getElementById('userShTitle').textContent='Add User';
-  const grps=DB.sel.gId?[{id:DB.sel.gId,name:gG(DB.sel.gId)?.name}]:DB.groups;
-  document.getElementById('userShBody').innerHTML=`
-    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
-    <div class="fg"><div class="fl">Role</div>
-      <select class="fi" id="uRole"><option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option></select>
-    </div>
-    <div class="fg"><div class="fl">Group</div>
-      <select class="fi" id="uGroupSel">
-        ${DB.groups.map(g=>`<option value="${g.id}"${g.id===DB.sel.gId?' selected':''}>${esc(g.name)}</option>`).join('')}
-      </select>
-    </div>
-  `;
+  renderUserShBody();
   open_('sUser');
 }
+
 function openEditUser(id,fromManage=false){
-  eUserId=id;const u=gU(id);
+  eUserId=id; const u=gU(id);
+  _uAssignments = u ? [{wardId: gG(u.gId)?.wId||'', groupId:u.gId}] : [];
   document.getElementById('userShTitle').textContent='Edit User';
-  document.getElementById('userShBody').innerHTML=`
-    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" value="${esc(u?u.name:'')}"/></div>
-    <div class="fg"><div class="fl">Role</div>
-      <select class="fi" id="uRole"><option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option></select>
-    </div>
-    <div class="fg"><div class="fl">Group</div>
-      <select class="fi" id="uGroupSel">
-        ${DB.groups.map(g=>`<option value="${g.id}"${u&&g.id===u.gId?' selected':''}>${esc(g.name)}</option>`).join('')}
-      </select>
-    </div>
-    <button class="btn br" style="margin-top:4px" onclick="delUser('${id}')">Delete User</button>
-  `;
-  if(u)setTimeout(()=>{const r=document.getElementById('uRole');if(r)r.value=u.role;},30);
+  renderUserShBody(u);
   open_('sUser');
 }
+
+function renderUserShBody(u=null){
+  const body = document.getElementById('userShBody');
+  // Build assignment rows HTML
+  const rows = _uAssignments.map((a,i) => buildAssignRow(a, i)).join('');
+  body.innerHTML = `
+    <div class="fg">
+      <div class="fl">Full Name</div>
+      <input class="fi" id="uName" placeholder="e.g. Somchai K." value="${esc(u?u.name:'')}"/>
+    </div>
+    <div class="fl" style="margin-bottom:8px">Ward &amp; Team Assignment</div>
+    <div id="uAssignList">${rows}</div>
+    <button class="btn bs" style="margin-top:8px;padding:11px;font-size:15px" onclick="uAddAssignRow()">＋ Add Another Ward / Team</button>
+    ${u ? `<button class="btn br" style="margin-top:10px" onclick="delUser('${u.id}')">Delete User</button>` : ''}
+    <div style="height:8px"></div>
+  `;
+  // Re-attach cascade listeners after render
+  _uAssignments.forEach((_,i) => uWardChanged(i, false));
+}
+
+function buildAssignRow(a, i){
+  const wardOpts = DB.wards.map(w =>
+    `<option value="${w.id}"${a.wardId===w.id?' selected':''}>${esc(w.name)}</option>`
+  ).join('');
+  const grpsInWard = a.wardId ? gGbyW(a.wardId) : [];
+  const groupOpts = grpsInWard.map(g => {
+    const members = gUbyG(g.id);
+    const memberStr = members.length ? members.map(m=>esc(m.name)).join(', ') : 'No members yet';
+    return `<option value="${g.id}"${a.groupId===g.id?' selected':''}>${esc(g.name)} — ${memberStr}</option>`;
+  }).join('');
+
+  return `<div class="ic" style="margin-bottom:10px;padding:12px 14px" id="uRow${i}">
+    <div class="fg" style="margin-bottom:10px">
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;font-weight:500">Ward</div>
+      <select class="fi" id="uWard${i}" onchange="uWardChanged(${i},true)" style="margin:0">
+        <option value="">— Select Ward —</option>
+        ${wardOpts}
+      </select>
+    </div>
+    <div class="fg" style="margin-bottom:${i>0?'4':'0'}px">
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;font-weight:500">Team</div>
+      <select class="fi" id="uGroup${i}" onchange="uGroupChanged(${i})" style="margin:0" ${!a.wardId?'disabled':''}>
+        <option value="">— Select Team —</option>
+        ${groupOpts}
+      </select>
+    </div>
+    ${i>0?`<button onclick="uRemoveRow(${i})" style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;font-family:inherit">✕ Remove</button>`:''}
+  </div>`;
+}
+
+function uWardChanged(i, rebuild){
+  const wSel = document.getElementById('uWard'+i);
+  const gSel = document.getElementById('uGroup'+i);
+  if(!wSel||!gSel) return;
+  const wId = wSel.value;
+  if(rebuild) { _uAssignments[i] = {wardId:wId, groupId:''}; }
+  const grps = wId ? gGbyW(wId) : [];
+  gSel.innerHTML = '<option value="">— Select Team —</option>' + grps.map(g => {
+    const members = gUbyG(g.id);
+    const memberStr = members.length ? members.map(m=>esc(m.name)).join(', ') : 'No members yet';
+    const sel = _uAssignments[i]?.groupId===g.id ? ' selected' : '';
+    return `<option value="${g.id}"${sel}>${esc(g.name)} — ${memberStr}</option>`;
+  }).join('');
+  gSel.disabled = !wId;
+}
+
+function uGroupChanged(i){
+  const gSel = document.getElementById('uGroup'+i);
+  if(gSel && _uAssignments[i]) _uAssignments[i].groupId = gSel.value;
+}
+
+function uAddAssignRow(){
+  _uAssignments.push({wardId:'', groupId:''});
+  const list = document.getElementById('uAssignList');
+  const i = _uAssignments.length-1;
+  const div = document.createElement('div');
+  div.innerHTML = buildAssignRow({wardId:'',groupId:''}, i);
+  list.appendChild(div.firstElementChild);
+}
+
+function uRemoveRow(i){
+  _uAssignments.splice(i,1);
+  // Re-render the whole body to keep indices clean
+  const u = eUserId ? gU(eUserId) : null;
+  renderUserShBody(u);
+}
+
 function submitUser(){
   const name=document.getElementById('uName').value.trim();
-  const role=document.getElementById('uRole')?.value||'Nurse';
-  const gId=(document.getElementById('uGroupSel')?.value)||'';
   if(!name){toast('Enter a name');return;}
-  if(!gId){toast('Select a group');return;}
+  // Collect valid assignments (must have both ward and group)
+  const assignments = _uAssignments.filter(a=>{
+    // Read live values from selects in case user changed without triggering events
+    const wEl=document.getElementById('uWard'+_uAssignments.indexOf(a));
+    const gEl=document.getElementById('uGroup'+_uAssignments.indexOf(a));
+    if(wEl) a.wardId=wEl.value;
+    if(gEl) a.groupId=gEl.value;
+    return a.groupId;
+  });
+  if(!assignments.length){toast('Select at least one team');return;}
+
   if(eUserId){
-    const u=gU(eUserId);if(u){u.name=name;u.role=role;u.gId=gId;}
+    // Edit: update primary assignment (first one)
+    const u=gU(eUserId);
+    if(u){u.name=name;u.gId=assignments[0].groupId;}
     gsUpsert('Users',{...gU(eUserId)});
+    // If multiple assignments, add extra users for same name in other groups
+    assignments.slice(1).forEach(a=>{
+      const existing = DB.users.find(u2=>u2.name===name&&u2.gId===a.groupId);
+      if(!existing){
+        const rec={id:uid(),gId:a.groupId,name,role:'Student'};
+        DB.users.push(rec);gsUpsert('Users',{...rec});
+      }
+    });
     toast('User updated ✓');
   } else {
-    const rec={id:uid(),gId,name,role};
-    DB.users.push(rec);
-    gsUpsert('Users',{...rec});
-    toast('User added ✓');
+    // Add: create one user record per assignment
+    assignments.forEach((a,idx)=>{
+      const rec={id:uid(),gId:a.groupId,name,role:'Student'};
+      DB.users.push(rec);
+      gsUpsert('Users',{...rec});
+    });
+    toast(assignments.length>1?`Added to ${assignments.length} teams ✓`:'User added ✓');
   }
   save();close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();
 }
+
 function delUser(id){
   if(!confirm('Delete this user?'))return;
   DB.users=DB.users.filter(u=>u.id!==id);
@@ -1497,6 +1590,7 @@ async function init(){
   // Load fresh data from Sheets on startup
   await loadFromSheets();
   renderLoginWall();
+  lwGo(1); // ensure only ward step visible on first load
   // Restore setup section visibility
   if(DB.sel.wId)document.getElementById('grpSec').classList.remove('hidden');
   if(DB.sel.gId)document.getElementById('usrSec').classList.remove('hidden');
