@@ -193,6 +193,10 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       <div class="nav-s r" id="navR"></div>
     </div>
     <div id="navSub" class="nav-sub hidden"></div>
+    <div style="position:absolute;bottom:6px;right:16px;font-size:10px;display:flex;align-items:center;gap:4px">
+      <span id="syncDot" style="font-size:8px;transition:color .3s" title=""></span>
+      <span id="syncLabel" style="font-size:10px;color:var(--txt3)"></span>
+    </div>
   </div>
 
   <!-- PAGE 0: ALL CASES -->
@@ -415,30 +419,84 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// CONFIG
+// CONFIG  ← set APPS_SCRIPT_URL after deploying WardSync_AppsScript.gs
 // ═══════════════════════════════════════════════════════════════
 const SHEET_ID = '1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM';
-const APPS_SCRIPT_URL = ''; // Set your Apps Script web app URL for write-back
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3VfOqdCfOG4bjqzTUQFwwcG0DuDWzrxZr4F_Ax6YMIk2nwrp0zIp2UJYDr19FoC8MaQ/exec'; // e.g. 'https://script.google.com/macros/s/ABC123/exec'
 const ADMIN_PIN = '1736';
 const TABS = {wards:'Wards',groups:'Groups',users:'Users',cases:'Cases'};
 
 // ═══════════════════════════════════════════════════════════════
-// DB
+// DB  — localStorage is always the source of truth on the client;
+//       Sheets is synced in the background for collaboration.
 // ═══════════════════════════════════════════════════════════════
 let DB = {wards:[],groups:[],users:[],cases:[],lastReset:'',sel:{wId:'',gId:'',uId:''}};
+let _syncQueue = [];    // pending ops to flush
+let _syncing   = false; // debounce guard
+let _syncTimer = null;
 
-function loadDB(){
-  try{const s=localStorage.getItem('ws6');if(s)DB=JSON.parse(s);}catch(e){}
-  if(!DB.wards||!DB.wards.length)seed();
-  dailyReset();
-}
+// ── Save to localStorage ────────────────────────────────────────
 function save(){
-  localStorage.setItem('ws6',JSON.stringify(DB));
-  if(APPS_SCRIPT_URL)pushSheets();
+  localStorage.setItem('ws6', JSON.stringify(DB));
 }
-async function pushSheets(){
-  try{await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(DB),headers:{'Content-Type':'application/json'}});}catch(e){}
+
+// ── Queue a granular op then debounce-flush to Sheets ──────────
+function queueOp(op){
+  save();
+  if(!APPS_SCRIPT_URL) return;
+  _syncQueue.push(op);
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(flushQueue, 800); // wait 800 ms for rapid edits
 }
+
+async function flushQueue(){
+  if(!APPS_SCRIPT_URL || _syncQueue.length === 0 || _syncing) return;
+  _syncing = true;
+  setSyncIndicator('syncing');
+  const ops = _syncQueue.splice(0); // take all pending
+  try {
+    // Execute ops sequentially to avoid race conditions
+    for(const op of ops){
+      await gsPost(op);
+    }
+    setSyncIndicator('ok');
+  } catch(err) {
+    console.warn('[GS] Sync failed, re-queuing:', err.message);
+    _syncQueue.unshift(...ops); // put back for retry
+    setSyncIndicator('error');
+    // Retry in 10 s
+    setTimeout(flushQueue, 10000);
+  }
+  _syncing = false;
+}
+
+async function gsPost(payload){
+  if(!APPS_SCRIPT_URL) return;
+  const actingUser = DB.users.find(u=>u.id===DB.sel.uId)?.name || 'unknown';
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({...payload, actingUser})
+  });
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'GS error');
+  return json;
+}
+
+// ── Sync indicator in nav ───────────────────────────────────────
+function setSyncIndicator(state){
+  const el = document.getElementById('syncDot');
+  if(!el) return;
+  if(state==='syncing') { el.textContent='⏺'; el.style.color='var(--orange)'; el.title='Syncing…'; }
+  else if(state==='ok')  { el.textContent='⏺'; el.style.color='var(--green)';  el.title='Synced ✓'; setTimeout(()=>{if(el)el.textContent='';},3000); }
+  else                   { el.textContent='⏺'; el.style.color='var(--red)';    el.title='Sync error — will retry'; }
+}
+
+// ── Convenience wrappers ────────────────────────────────────────
+function gsUpsert(table, record){ queueOp({action:'UPSERT', table, record}); }
+function gsPatch(table, id, fields){ queueOp({action:'PATCH', table, id, fields}); }
+function gsDelete(table, id){ queueOp({action:'DELETE', table, id}); }
+function gsFullSync(){ queueOp({action:'FULL_SYNC', wards:DB.wards, groups:DB.groups, users:DB.users, cases:DB.cases}); }
 function seed(){
   DB={
     wards:[{id:'w1',name:'Ward 6 Medical'},{id:'w2',name:'Ward 7 Surgical'}],
@@ -466,9 +524,25 @@ function dailyReset(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// GOOGLE SHEETS READ (public CSV)
+// GOOGLE SHEETS — LOAD
+// Prefers Apps Script GET (has timestamps, exact types).
+// Falls back to public CSV (read-only, works without deploy).
 // ═══════════════════════════════════════════════════════════════
 async function loadFromSheets(){
+  // ── Method 1: Apps Script GET (preferred when URL is set) ──
+  if(APPS_SCRIPT_URL){
+    try{
+      const res = await fetch(APPS_SCRIPT_URL + '?action=read', {method:'GET'});
+      const json = await res.json();
+      if(json.ok && json.data){
+        applyRemoteData(json.data);
+        console.log('[GS] Loaded via Apps Script ✓', new Date().toLocaleTimeString());
+        return;
+      }
+    }catch(e){ console.warn('[GS] Apps Script GET failed, falling back to CSV:', e.message); }
+  }
+
+  // ── Method 2: Public CSV fallback ──
   const base=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
   try{
     const [wR,gR,uR,cR]=await Promise.all([
@@ -477,23 +551,65 @@ async function loadFromSheets(){
       fetch(base+encodeURIComponent(TABS.users)).then(r=>r.text()),
       fetch(base+encodeURIComponent(TABS.cases)).then(r=>r.text()),
     ]);
-    const wards=parseCSV(wR),groups=parseCSV(gR),users=parseCSV(uR),cases=parseCSV(cR);
-    if(wards.length){
-      DB.wards=wards.map(r=>({id:r.id||uid(),name:r.name||''})).filter(r=>r.name);
-      DB.groups=groups.map(r=>({id:r.id||uid(),wId:r.wId||r.wardId||'',name:r.name||''})).filter(r=>r.name);
-      DB.users=users.map(r=>({id:r.id||uid(),gId:r.gId||r.groupId||'',name:r.name||'',role:r.role||'Nurse'})).filter(r=>r.name);
-      DB.cases=cases.map(r=>({
-        id:r.id||uid(),gId:r.gId||r.groupId||'',hn:r.hn||'',name:r.name||'',
-        dx:r.dx||r.diagnosis||'',admit:r.admit||r.admitDate||'',uid:r.uid||r.userId||'',
-        report:r.report===''||r.report===undefined?null:r.report==='true'?true:r.report==='false'?false:null,
-        reportWriter:r.reportWriter||null,
-        round:r.round==='true',admNote:r.admNote==='true'||r.admissionNote==='true',
-        out:r.out==='true'||r.discharged==='true'
-      })).filter(r=>r.hn);
-      save();
-    }
-  }catch(e){console.warn('[GS]',e.message);}
+    const raw = {
+      wards:  parseCSV(wR),
+      groups: parseCSV(gR),
+      users:  parseCSV(uR),
+      cases:  parseCSV(cR)
+    };
+    if(raw.wards.length){ applyRemoteData(raw); console.log('[GS] Loaded via CSV ✓'); }
+  }catch(e){ console.warn('[GS] CSV load failed:', e.message); }
 }
+
+// ── Apply remote data, normalise types, then save locally ──────
+function applyRemoteData(d){
+  if(d.wards && d.wards.length){
+    DB.wards  = d.wards.map(r=>({id:r.id||uid(), name:r.name||'', updatedAt:r.updatedAt||''})).filter(r=>r.name);
+  }
+  if(d.groups && d.groups.length){
+    DB.groups = d.groups.map(r=>({id:r.id||uid(), wId:r.wId||r.wardId||'', name:r.name||'', updatedAt:r.updatedAt||''})).filter(r=>r.name);
+  }
+  if(d.users && d.users.length){
+    DB.users  = d.users.map(r=>({id:r.id||uid(), gId:r.gId||r.groupId||'', name:r.name||'', role:r.role||'Nurse', updatedAt:r.updatedAt||''})).filter(r=>r.name);
+  }
+  if(d.cases && d.cases.length){
+    DB.cases  = d.cases.map(r=>({
+      id:r.id||uid(), gId:r.gId||r.groupId||'', hn:r.hn||'',
+      name:r.name||'', dx:r.dx||r.diagnosis||'',
+      admit:r.admit||r.admitDate||'', uid:r.uid||r.userId||'',
+      report: normBool(r.report),
+      reportWriter: r.reportWriter||null,
+      reportWriterName: r.reportWriterName||'',
+      round:   normBool(r.round)===true,
+      admNote: normBool(r.admNote)===true || normBool(r.admissionNote)===true,
+      out:     normBool(r.out)===true || normBool(r.discharged)===true,
+      createdAt:  r.createdAt||'',
+      updatedAt:  r.updatedAt||''
+    })).filter(r=>r.hn);
+  }
+  save();
+}
+
+// Normalise "true"/"false"/true/false/null/"null"/"" → true/false/null
+function normBool(v){
+  if(v===true  || v==='true')  return true;
+  if(v===false || v==='false') return false;
+  return null;
+}
+
+// ── Auto-refresh every 60 s when page is visible (collaboration) ──
+function startAutoRefresh(){
+  setInterval(async()=>{
+    if(document.visibilityState==='visible' && !_syncing){
+      await loadFromSheets();
+      // Re-render current tab silently
+      if(curTab===0)renderAll();
+      else if(curTab===1)renderMy();
+      else if(curTab===2)renderStats();
+    }
+  }, 60000);
+}
+
 function parseCSV(t){
   const lines=t.trim().split('\n');if(lines.length<2)return[];
   const h=csvLine(lines[0]);
@@ -590,6 +706,7 @@ function updateNav(){
   document.getElementById('navL').innerHTML='';
   document.getElementById('navR').innerHTML='';
   if(curTab<3){
+    document.getElementById('navL').innerHTML=`<button class="nbtn" style="font-size:13px" onclick="manualRefresh()">↻</button>`;
     document.getElementById('navR').innerHTML=`<button class="nbtn" style="font-size:13px" onclick="showLoginWall()">Change User</button>`;
   }
   if(curTab===3){
@@ -789,8 +906,16 @@ function openEditWard(id,fromManage=false){
 function submitWard(){
   const name=document.getElementById('wardName').value.trim();
   if(!name){toast('Enter a ward name');return;}
-  if(eWardId){const w=gW(eWardId);if(w)w.name=name;toast('Ward updated ✓');}
-  else{DB.wards.push({id:uid(),name});toast('Ward added ✓');}
+  if(eWardId){
+    const w=gW(eWardId);if(w)w.name=name;
+    gsUpsert('Wards',{...w});
+    toast('Ward updated ✓');
+  } else {
+    const rec={id:uid(),name};
+    DB.wards.push(rec);
+    gsUpsert('Wards',{...rec});
+    toast('Ward added ✓');
+  }
   save();close_('sWard');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delWard(id){
@@ -798,9 +923,14 @@ function delWard(id){
   const gids=DB.groups.filter(g=>g.wId===id).map(g=>g.id);
   DB.wards=DB.wards.filter(w=>w.id!==id);
   DB.groups=DB.groups.filter(g=>g.wId!==id);
+  const removedUsers=DB.users.filter(u=>gids.includes(u.gId));
   DB.users=DB.users.filter(u=>!gids.includes(u.gId));
   if(DB.sel.wId===id){DB.sel.wId='';DB.sel.gId='';DB.sel.uId='';}
-  save();close_('sWard');renderSetup();renderLoginWall();renderManageBodySafe();toast('Ward deleted');
+  save();
+  gsDelete('Wards',id);
+  gids.forEach(gId=>gsDelete('Groups',gId));
+  removedUsers.forEach(u=>gsDelete('Users',u.id));
+  close_('sWard');renderSetup();renderLoginWall();renderManageBodySafe();toast('Ward deleted');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -826,16 +956,28 @@ function submitGroup(){
   const name=document.getElementById('groupName').value.trim();
   const wId=document.getElementById('groupWard').value;
   if(!name){toast('Enter a group name');return;}
-  if(eGroupId){const g=gG(eGroupId);if(g){g.name=name;g.wId=wId;}toast('Group updated ✓');}
-  else{DB.groups.push({id:uid(),wId,name});toast('Group added ✓');}
+  if(eGroupId){
+    const g=gG(eGroupId);if(g){g.name=name;g.wId=wId;}
+    gsUpsert('Groups',{...g});
+    toast('Group updated ✓');
+  } else {
+    const rec={id:uid(),wId,name};
+    DB.groups.push(rec);
+    gsUpsert('Groups',{...rec});
+    toast('Group added ✓');
+  }
   save();close_('sGroup');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delGroup(id){
   if(!confirm('Delete this group?'))return;
+  const removedUsers=DB.users.filter(u=>u.gId===id);
   DB.groups=DB.groups.filter(g=>g.id!==id);
   DB.users=DB.users.filter(u=>u.gId!==id);
   if(DB.sel.gId===id){DB.sel.gId='';DB.sel.uId='';}
-  save();close_('sGroup');renderSetup();renderLoginWall();renderManageBodySafe();toast('Group deleted');
+  save();
+  gsDelete('Groups',id);
+  removedUsers.forEach(u=>gsDelete('Users',u.id));
+  close_('sGroup');renderSetup();renderLoginWall();renderManageBodySafe();toast('Group deleted');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -879,19 +1021,28 @@ function openEditUser(id,fromManage=false){
 function submitUser(){
   const name=document.getElementById('uName').value.trim();
   const role=document.getElementById('uRole')?.value||'Nurse';
-  // Group might come from uGroupSel or cascaded uGroupSel (from openAddUserFromManage)
   const gId=(document.getElementById('uGroupSel')?.value)||'';
   if(!name){toast('Enter a name');return;}
   if(!gId){toast('Select a group');return;}
-  if(eUserId){const u=gU(eUserId);if(u){u.name=name;u.role=role;u.gId=gId;}toast('User updated ✓');}
-  else{DB.users.push({id:uid(),gId,name,role});toast('User added ✓');}
+  if(eUserId){
+    const u=gU(eUserId);if(u){u.name=name;u.role=role;u.gId=gId;}
+    gsUpsert('Users',{...gU(eUserId)});
+    toast('User updated ✓');
+  } else {
+    const rec={id:uid(),gId,name,role};
+    DB.users.push(rec);
+    gsUpsert('Users',{...rec});
+    toast('User added ✓');
+  }
   save();close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();
 }
 function delUser(id){
   if(!confirm('Delete this user?'))return;
   DB.users=DB.users.filter(u=>u.id!==id);
   if(DB.sel.uId===id)DB.sel.uId='';
-  save();close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();toast('User deleted');
+  save();
+  gsDelete('Users',id);
+  close_('sUser');renderSetup();renderLoginWall();renderManageBodySafe();toast('User deleted');
 }
 function renderManageBodySafe(){
   // Only re-render manage body if the sheet is open
@@ -1035,7 +1186,9 @@ function openDetail(id){
 
 function tgl(cId,field){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c[field]=!c[field];save();
+  c[field]=!c[field];
+  save();
+  gsPatch('Cases', cId, {[field]: c[field]});
   const el=document.getElementById(field==='round'?'dRound':'dAdm');
   if(el)el.classList.toggle('on',c[field]);
   refresh();
@@ -1046,7 +1199,9 @@ function setReport(cId,val){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
   c.report=val;
   if(val!==true){c.reportWriter=null;c.reportWriterName='';}
-  save();refresh();
+  save();
+  gsPatch('Cases', cId, {report:val, reportWriter:c.reportWriter||'', reportWriterName:c.reportWriterName||''});
+  refresh();
   // update toggle buttons
   const yb=document.getElementById('rptY'),nb=document.getElementById('rptN'),xb=document.getElementById('rptX');
   if(yb){yb.style.background=val===true?'var(--green)':'var(--gray5)';yb.style.color=val===true?'#fff':'var(--txt3)';}
@@ -1064,24 +1219,32 @@ function handleWriterChange(cId){
   if(!sel)return;
   c.reportWriter=sel.value||null;
   if(c.reportWriter!=='__other__')c.reportWriterName='';
-  save();refresh();
+  save();
+  gsPatch('Cases', cId, {reportWriter:c.reportWriter||'', reportWriterName:c.reportWriterName||''});
+  refresh();
   const wrap=document.getElementById('writerOtherWrap');
   if(wrap)wrap.style.display=c.reportWriter==='__other__'?'':'none';
 }
 
 function saveWriterOther(cId,val){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.reportWriterName=val;save();refresh();
+  c.reportWriterName=val;save();
+  clearTimeout(c._writerTimer);
+  c._writerTimer=setTimeout(()=>{ gsPatch('Cases',cId,{reportWriterName:val}); refresh(); }, 1000);
 }
 
 function reassign(cId,uId){
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.uid=uId;save();refresh();toast('Assigned to '+(gU(uId)?.name||'user'));
+  c.uid=uId;save();
+  gsPatch('Cases',cId,{uid:uId});
+  refresh();toast('Assigned to '+(gU(uId)?.name||'user'));
 }
 function discharge(cId){
   if(!confirm('Discharge this patient?'))return;
   const c=DB.cases.find(x=>x.id===cId);if(!c)return;
-  c.out=true;save();close_('sCaseDetail');refresh();toast('Patient discharged');
+  c.out=true;save();
+  gsPatch('Cases',cId,{out:true});
+  close_('sCaseDetail');refresh();toast('Patient discharged');
 }
 function openEditFromDetail(){close_('sCaseDetail');openAddCase(false,editId);}
 function refresh(){if(curTab===0)renderAll();if(curTab===1)renderMy();if(curTab===2)renderStats();}
@@ -1140,12 +1303,16 @@ function submitCase(){
   const uId=document.getElementById('fUser').value;
   const admNote=document.getElementById('fAdmNote').classList.contains('on');
   if(!hn||!name||!dx||!admit){toast('Fill all required fields (*)');return;}
+  const now=new Date().toISOString();
   if(editId){
     const c=DB.cases.find(x=>x.id===editId);
-    if(c){c.hn=hn;c.name=name;c.dx=dx;c.admit=admit;c.gId=gId;c.uid=uId;c.admNote=admNote;}
+    if(c){c.hn=hn;c.name=name;c.dx=dx;c.admit=admit;c.gId=gId;c.uid=uId;c.admNote=admNote;c.updatedAt=now;}
+    gsUpsert('Cases',{...c});
     toast('Case updated ✓');
   }else{
-    DB.cases.push({id:uid(),gId,hn,name,dx,admit,uid:uId,report:null,reportWriter:null,reportWriterName:'',round:false,admNote,out:false});
+    const rec={id:uid(),gId,hn,name,dx,admit,uid:uId,report:null,reportWriter:null,reportWriterName:'',round:false,admNote,out:false,createdAt:now,updatedAt:now};
+    DB.cases.push(rec);
+    gsUpsert('Cases',{...rec});
     toast('Case added ✓');
   }
   save();close_('sAddCase');refresh();
@@ -1153,7 +1320,9 @@ function submitCase(){
 function delCase(id){
   if(!confirm('Delete this case permanently?'))return;
   DB.cases=DB.cases.filter(c=>c.id!==id);
-  save();close_('sAddCase');refresh();toast('Case deleted');
+  save();
+  gsDelete('Cases',id);
+  close_('sAddCase');refresh();toast('Case deleted');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1282,62 +1451,108 @@ document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',function
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
+function loadDB(){
+  try{const s=localStorage.getItem('ws6');if(s)DB=JSON.parse(s);}catch(e){}
+  if(!DB.wards||!DB.wards.length)seed();
+  dailyReset();
+}
+
 async function init(){
   loadDB();
+  // Load fresh data from Sheets on startup
   await loadFromSheets();
   renderLoginWall();
   // Restore setup section visibility
   if(DB.sel.wId)document.getElementById('grpSec').classList.remove('hidden');
   if(DB.sel.gId)document.getElementById('usrSec').classList.remove('hidden');
-  // Show login wall if no user selected, else go straight to all cases
+  // If user already selected, skip login wall
   if(DB.sel.uId){
     document.getElementById('loginWall').classList.add('hide');
     updateNav();renderAll();
   }
+  // Start background auto-refresh for collaboration
+  startAutoRefresh();
 }
+
+// Manual refresh button handler
+async function manualRefresh(){
+  const dot=document.getElementById('syncDot');
+  const lbl=document.getElementById('syncLabel');
+  if(dot){dot.textContent='⏺';dot.style.color='var(--orange)';}
+  if(lbl)lbl.textContent='Refreshing…';
+  await loadFromSheets();
+  if(curTab===0)renderAll();
+  else if(curTab===1)renderMy();
+  else if(curTab===2)renderStats();
+  if(dot){dot.textContent='⏺';dot.style.color='var(--green)';}
+  if(lbl)lbl.textContent='';
+  setTimeout(()=>{if(dot)dot.textContent='';},3000);
+  toast('✓ Data refreshed');
+}
+
 init();
 </script>
 
 <!--
-══════════════════════════════════════════════════════════
-  GOOGLE SHEETS SETUP
-══════════════════════════════════════════════════════════
-Sheet ID: 1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM
+══════════════════════════════════════════════════════════════════
+  WARDSYNC — COMPLETE SETUP GUIDE
+  Sheet: https://docs.google.com/spreadsheets/d/1IcSHKfkEndEwFuKwecJ43PzC0-KE3cQPiiHDjdH2kJM/
+══════════════════════════════════════════════════════════════════
 
-1. Create 4 tabs in the sheet named EXACTLY:
-   Wards   → columns: id, name
-   Groups  → columns: id, wId, name
-   Users   → columns: id, gId, name, role
-   Cases   → columns: id, gId, hn, name, dx, admit, uid,
-             report, reportWriter, reportWriterName,
-             round, admNote, out
+STEP 1 — Deploy the Apps Script backend
+  a. Open the sheet → Extensions → Apps Script
+  b. Delete any existing code
+  c. Paste the ENTIRE content of WardSync_AppsScript.gs
+  d. Save (Ctrl+S)
+  e. Click "Run" → select setupSheets() → Authorize when prompted
+     (This creates all tab headers automatically)
+  f. Deploy → New Deployment → Web App
+     · Execute as: Me
+     · Who has access: Anyone
+  g. Click Deploy → copy the Web App URL
 
-2. Share sheet as "Anyone with link → Viewer"
-   (enables CSV read without API key)
+STEP 2 — Connect the app to the backend
+  In this HTML file, find this line near the top of <script>:
+    const APPS_SCRIPT_URL = '';
+  Replace with:
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
 
-3. For WRITE-BACK deploy an Apps Script:
-   Extensions → Apps Script → paste below → Deploy as Web App
-   Set APPS_SCRIPT_URL constant at top of this file.
+STEP 3 — Make the sheet publicly readable (for CSV fallback)
+  Sheet → Share → Anyone with link → Viewer
+  (This allows the app to read data even if Apps Script is slow)
 
-   function doPost(e) {
-     const db = JSON.parse(e.postData.contents);
-     const ss = SpreadsheetApp.getActiveSpreadsheet();
-     write(ss,'Wards',  db.wards,  ['id','name']);
-     write(ss,'Groups', db.groups, ['id','wId','name']);
-     write(ss,'Users',  db.users,  ['id','gId','name','role']);
-     write(ss,'Cases',  db.cases,  ['id','gId','hn','name','dx','admit','uid',
-       'report','reportWriter','reportWriterName','round','admNote','out']);
-     return ContentService.createTextOutput('ok');
-   }
-   function write(ss,name,data,cols){
-     const sh=ss.getSheetByName(name);
-     sh.clearContents();sh.appendRow(cols);
-     data.forEach(r=>sh.appendRow(cols.map(c=>r[c]!==undefined?r[c]:'')));
-   }
+STEP 4 — First-time data sync
+  Open the app → go to Setup tab (PIN: 1736)
+  Open browser DevTools console (F12) and run:
+    gsFullSync()
+  This pushes all your app data to the sheet.
 
-4. GitHub Pages: save as index.html, push to repo,
-   enable Pages under Settings → Pages.
-══════════════════════════════════════════════════════════
+STEP 5 — Host on GitHub Pages
+  · Save this file as index.html
+  · Push to a GitHub repository
+  · Settings → Pages → Deploy from main branch → / (root)
+  · Share URL with your team: https://yourusername.github.io/repo/
+
+HOW REAL-TIME COLLABORATION WORKS:
+  ┌─────────────────────────────────────────────────────────┐
+  │ User A (Phone)          Google Sheet          User B    │
+  │ adds case ──────────► Apps Script UPSERT ──► auto-read  │
+  │ toggles Round ─────► Apps Script PATCH  ──► every 60s  │
+  │ discharges ────────► Apps Script PATCH  ──► or tap ↻   │
+  └─────────────────────────────────────────────────────────┘
+
+  · Every change syncs to Sheets within ~1 second
+  · All users auto-refresh from Sheets every 60 seconds
+  · ↻ button in nav bar = force refresh instantly
+  · ⏺ dot: orange=syncing, green=synced, red=retry pending
+  · If offline: changes saved locally, synced when back online
+  · Log tab: last 1000 actions with timestamp + who did it
+
+CONFLICT POLICY: Last-write-wins.
+  If two users edit the same case simultaneously, the last one
+  to save wins. For ward use, this is acceptable — same as a
+  whiteboard. The Log tab preserves full history.
+══════════════════════════════════════════════════════════════════
 -->
 </body>
 </html>
