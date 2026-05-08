@@ -658,6 +658,19 @@ const gGbyW=wId=>DB.groups.filter(g=>g.wId===wId);
 const gUbyG=gId=>DB.users.filter(u=>u.gId===gId);
 const gCbyG=gId=>DB.cases.filter(c=>c.gId===gId&&!c.out);
 const gCbyU=uId=>DB.cases.filter(c=>c.uid===uId&&!c.out);
+// Users sorted by active case count ascending (fewest first = suggested)
+const gUbyGsorted=gId=>gUbyG(gId).slice().sort((a,b)=>gCbyU(a.id).length-gCbyU(b.id).length);
+// Build user option HTML with case count badge
+function userOpts(gId,selUid,autoSuggest=false){
+  const users=gUbyGsorted(gId);
+  const suggestId=autoSuggest&&!selUid?users[0]?.id:null;
+  return users.map(u=>{
+    const n=gCbyU(u.id).length;
+    const sel=(selUid?selUid:suggestId)===u.id?' selected':'';
+    const tag=suggestId===u.id?' ⭐ Suggested':'';
+    return`<option value="${u.id}"${sel}>${esc(u.name)} (${n} case${n!==1?'s':''})${tag}</option>`;
+  }).join('');
+}
 const days=d=>{if(!d)return 0;return Math.floor((Date.now()-new Date(d))/86400000);};
 const ini=n=>n.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
 const esc=s=>!s?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -834,7 +847,7 @@ function renderManageBody(){
     ${DB.users.map(u=>{const g=gG(u.gId);return`
       <div class="row">
         <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
-        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)}${g?' · '+g.name:''}</div></div>
+        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${g?g.name:''} · ${gCbyU(u.id).length} cases</div></div>
         <button class="nbtn" style="font-size:13px" onclick="openEditUser('${u.id}',true)">Edit</button>
       </div>`;}).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">None yet</div>'}
   </div>`;
@@ -848,12 +861,7 @@ function openAddUserFromManage(){
   eUserId=null;
   document.getElementById('userShTitle').textContent='Add User';
   document.getElementById('userShBody').innerHTML=`
-    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Dr. Somchai"/></div>
-    <div class="fg"><div class="fl">Role</div>
-      <select class="fi" id="uRole">
-        <option>Nurse</option><option>Doctor</option><option>Resident</option><option>Intern</option><option>Other</option>
-      </select>
-    </div>
+    <div class="fg"><div class="fl">Full Name</div><input class="fi" id="uName" placeholder="e.g. Somchai K."/></div>
     <div class="fg"><div class="fl">Ward</div>
       <select class="fi" id="uWardSel" onchange="cascadeUserGroup()">
         <option value="">— Select Ward —</option>
@@ -904,7 +912,7 @@ function renderSetup(){
     document.getElementById('userList').innerHTML=gUbyG(DB.sel.gId).map(u=>`
       <div class="row-nd">
         <div class="av" style="background:${hCol(u.name)};margin-right:12px">${esc(ini(u.name))}</div>
-        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${esc(u.role)}</div></div>
+        <div class="rb"><div class="rt">${esc(u.name)}</div><div class="rs">${gCbyU(u.id).length} active cases</div></div>
         <button class="nbtn" style="font-size:13px" onclick="openEditUser('${u.id}')">Edit</button>
       </div>`).join('')||'<div class="row-nd" style="color:var(--txt3);font-size:15px">No users yet</div>';
   }
@@ -1301,8 +1309,9 @@ function openAddCase(forMy=false,eId=null){
       </select>
     </div>
     <div class="fg"><div class="fl">Assign To</div>
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:6px;padding-left:4px">⭐ = suggested (fewest cases)</div>
       <select class="fi" id="fUser">
-        ${users.map(u=>`<option value="${u.id}"${c?.uid===u.id?' selected':''}>${esc(u.name)}</option>`).join('')}
+        \${userOpts(defGid, c?.uid||null, !eId)}
       </select>
     </div>
     <div class="fg"><div class="fl">Admission Note</div>
@@ -1318,7 +1327,7 @@ function openAddCase(forMy=false,eId=null){
 }
 function refreshCaseUsers(){
   const el=document.getElementById('fUser');
-  if(el)el.innerHTML=gUbyG(document.getElementById('fGroup').value).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  if(el)el.innerHTML=userOpts(document.getElementById('fGroup').value,null,!editId);
 }
 function submitCase(){
   const hn=document.getElementById('fHN').value.trim();
